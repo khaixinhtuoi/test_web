@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang chủ - testtest</title>
+  <!-- Import Bootstrap CSS từ CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
+  <style>
+    :root {
+      --primary-color: #000000;
+      --secondary-color: #D4AF37;
+      --secondary-hover: #BFA760;
+      --dark-gray: #121212;
+      --medium-gray: #1E1E1E;
+      --light-gray: #2D2D2D;
+      --text-color: #FFFFFF;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --border-radius: 8px;
+      --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      --transition: all 0.25s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      line-height: 1.5;
+      font-weight: 400;
+      letter-spacing: -0.015em;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--dark-gray);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--light-gray);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-color);
+    }
+
+    .container {
+      max-width: 1440px;
+      padding: 0 24px;
+    }
+
+    a {
+      color: var(--text-color);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    a:hover {
+      color: var(--secondary-color);
+    }
+
+    /* Header Styles */
+    .main-header {
+      background-color: var(--primary-color);
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: var(--transition);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .main-header.scrolled {
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+      background-color: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #FFFFFF, var(--secondary-color));
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .navbar-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .search-wrapper {
+      position: relative;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 24px;
+    }
+
+    .form-control-search {
+      background-color: var(--medium-gray);
+      border: none;
+      color: var(--text-color);
+      height: 40px;
+      border-radius: 20px;
+      padding: 0 20px;
+      width: 100%;
+      transition: var(--transition);
+    }
+
+    .form-control-search:focus {
+      background-color: var(--light-gray);
+      box-shadow: 0 0 0 2px var(--secondary-color);
+      color: var(--text-color);
+      outline: none;
+    }
+
+    .form-control-search::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .search-button {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      height: 30px;
+      width: 30px;
+      background-color: transparent;
+      border: none;
+      color: var(--text-secondary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .search-button:hover {
+      color: var(--secondary-color);
+    }
+
+    .user-actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--medium-gray);
+      color: var(--text-color);
+      margin-left: 12px;
+      position: relative;
+      transition: var(--transition);
+      border: none;
+    }
+
+    .icon-btn:hover {
+      background-color: var(--light-gray);
+      color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .cart-counter {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      font-size: 0.7rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .categories-nav {
+      background-color: var(--dark-gray);
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .categories-list {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      justify-content: center;
+    }
+
+    .categories-list li {
+      margin: 0 16px;
+    }
+
+    .categories-list a {
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.9rem;
+      padding: 6px 0;
+      transition: var(--transition);
+      position: relative;
+      display: inline-block;
+    }
+
+    .categories-list a:hover {
+      color: var(--secondary-color);
+    }
+
+    .categories-list a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 1px;
+      bottom: 0;
+      left: 0;
+      background-color: var(--secondary-color);
+      transition: var(--transition);
+    }
+
+    .categories-list a:hover::after {
+      width: 100%;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--dark-gray) 100%);
+      padding: 80px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23D4AF37" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23D4AF37" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23D4AF37" opacity="0.05"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #FFFFFF 0%, var(--secondary-color) 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 32px;
+      height: 56px;
+      border-radius: 28px;
+      font-weight: 500;
+      transition: var(--transition);
+      border: none;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      font-size: 1rem;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary-hover);
+      color: var(--primary-color);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--text-color);
+      border: 2px solid var(--border-color);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--secondary-color);
+      color: var(--secondary-color);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(255, 255, 255, 0.1);
+    }
+
+    .btn i {
+      margin-right: 8px;
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: 80px 0;
+      background-color: var(--dark-gray);
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #FFFFFF 0%, var(--secondary-color) 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 60px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+      margin-top: 60px;
+    }
+
+    .feature-card {
+      background-color: var(--medium-gray);
+      border-radius: 16px;
+      padding: 40px 30px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+      transition: var(--transition);
+    }
+
+    .feature-card:hover::before {
+      left: 100%;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+      border-color: var(--secondary-color);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .feature-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--secondary-color), var(--secondary-hover));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 2rem;
+      color: var(--primary-color);
+    }
+
+    .feature-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--text-color);
+    }
+
+    .feature-description {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* Products Section */
+    .products-section {
+      padding: 80px 0;
+      background-color: var(--primary-color);
+    }
+
+    .products-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 50px;
+    }
+
+    .products-tabs {
+      display: flex;
+      background-color: var(--dark-gray);
+      border-radius: 12px;
+      padding: 6px;
+    }
+
+    .product-tab {
+      padding: 12px 24px;
+      border-radius: 8px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .product-tab.active {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .product-card {
+      background-color: var(--medium-gray);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: var(--transition);
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border-color: var(--secondary-color);
+    }
+
+    .product-image {
+      position: relative;
+      overflow: hidden;
+      background-color: var(--dark-gray);
+      height: 250px;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 20px;
+      transition: var(--transition);
+    }
+
+    .product-card:hover .product-image img {
+      transform: scale(1.05);
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .product-actions {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      opacity: 0;
+      transform: translateX(20px);
+      transition: var(--transition);
+    }
+
+    .product-card:hover .product-actions {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .action-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, 0.8);
+      border: none;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .action-btn:hover {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+    }
+
+    .product-info {
+      padding: 25px;
+    }
+
+    .product-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-color);
+      line-height: 1.4;
+    }
+
+    .product-rating {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .rating-stars {
+      color: var(--secondary-color);
+      margin-right: 8px;
+    }
+
+    .rating-count {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .product-price {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .price-current {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--secondary-color);
+    }
+
+    .price-old {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      text-decoration: line-through;
+      margin-left: 8px;
+    }
+
+    .add-to-cart {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .add-to-cart:hover {
+      background-color: var(--secondary-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Newsletter Section */
+    .newsletter-section {
+      padding: 80px 0;
+      background: linear-gradient(135deg, var(--dark-gray) 0%, var(--medium-gray) 100%);
+      position: relative;
+    }
+
+    .newsletter-content {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .newsletter-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #FFFFFF 0%, var(--secondary-color) 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .newsletter-description {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+    }
+
+    .newsletter-form {
+      display: flex;
+      max-width: 500px;
+      margin: 0 auto;
+      gap: 15px;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 16px 20px;
+      background-color: var(--primary-color);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .newsletter-input:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+    }
+
+    .newsletter-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .newsletter-btn {
+      padding: 16px 32px;
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+    }
+
+    .newsletter-btn:hover {
+      background-color: var(--secondary-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    .main-footer {
+      background-color: var(--dark-gray);
+      border-top: 1px solid var(--border-color);
+      padding: 60px 0 30px;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-section h5 {
+      color: var(--text-color);
+      font-weight: 600;
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+
+    .footer-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-section ul li {
+      margin-bottom: 12px;
+    }
+
+    .footer-section ul li a {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    .footer-section ul li a:hover {
+      color: var(--secondary-color);
+      padding-left: 5px;
+    }
+
+    .footer-section ul li a i {
+      margin-right: 8px;
+      width: 16px;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* Swiper Styles */
+    .swiper {
+      width: 100%;
+      height: 100%;
+    }
+
+    .swiper-button-next, .swiper-button-prev {
+      color: var(--secondary-color);
+    }
+
+    .swiper-pagination-bullet {
+      background: var(--text-secondary);
+    }
+
+    .swiper-pagination-bullet-active {
+      background: var(--secondary-color);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in-up {
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .search-wrapper {
+        margin: 20px 0;
+        order: 3;
+        width: 100%;
+      }
+      
+      .navbar-container {
+        flex-wrap: wrap;
+      }
+
+      .hero-title {
+        font-size: 2.5rem;
+      }
+
+      .products-header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      .products-tabs {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .categories-list {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 0.5rem 0;
+      }
+      
+      .categories-list li {
+        margin: 0 12px;
+        white-space: nowrap;
+      }
+
+      .hero-section {
+        padding: 60px 0;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .products-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+      }
+
+      .newsletter-btn {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .user-actions .btn-text {
+        display: none;
+      }
+
+      .hero-title {
+        font-size: 1.75rem;
+      }
+
+      .section-title {
+        font-size: 2rem;
+      }
+
+      .newsletter-title {
+        font-size: 2rem;
+      }
+
+      .products-tabs {
+        flex-direction: column;
+      }
+
+      .product-tab {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Main Header -->
+<header class="main-header" id="main-header">
+  <div class="container">
+    <div class="navbar-container">
+      <!-- Logo -->
+      <a href="/" class="logo-text">test</a>
+
+      <!-- Search -->
+      <div class="search-wrapper">
+        <input type="search" class="form-control form-control-search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search">
+        <button class="search-button" type="submit">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+
+      <!-- User Actions -->
+      <div class="user-actions">
+        <button class="icon-btn" title="Tài khoản">
+          <i class="bi bi-person"></i>
+        </button>
+        <button class="icon-btn" title="Sản phẩm yêu thích">
+          <i class="bi bi-heart"></i>
+        </button>
+        <button class="icon-btn" title="Giỏ hàng">
+          <i class="bi bi-cart"></i>
+          <span class="cart-counter">3</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Categories Navigation -->
+<div class="categories-nav">
+  <div class="container">
+    <ul class="categories-list">
+      <li><a href="#">iPhone</a></li>
+      <li><a href="#">Samsung</a></li>
+      <li><a href="#">Xiaomi</a></li>
+      <li><a href="#">OPPO</a></li>
+      <li><a href="#">Vivo</a></li>
+      <li><a href="#">Laptop</a></li>
+      <li><a href="#">Tablet</a></li>
+      <li><a href="#">Smartwatch</a></li>
+      <li><a href="#">Tai nghe</a></li>
+      <li><a href="#">Phụ kiện</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-content animate-fade-in-up">
+      <h1 class="hero-title">Công nghệ hàng đầu<br>Giá cả tốt nhất</h1>
+      <p class="hero-subtitle">
+        Khám phá bộ sưu tập smartphone, laptop và phụ kiện công nghệ mới nhất với chất lượng cao và giá cả cạnh tranh nhất thị trường.
+      </p>
+      <div class="hero-buttons">
+        <a href="#products" class="btn btn-primary">
+          <i class="bi bi-bag-check"></i>
+          Mua sắm ngay
+        </a>
+        <a href="#features" class="btn btn-outline">
+          <i class="bi bi-play-circle"></i>
+          Tìm hiểu thêm
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section" id="features">
+  <div class="container">
+    <div class="text-center">
+      <h2 class="section-title">Tại sao chọn chúng tôi?</h2>
+      <p class="section-subtitle">
+        Chúng tôi cam kết mang đến trải nghiệm mua sắm tuyệt vời nhất với những ưu điểm vượt trội
+      </p>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card animate-fade-in-up">
+        <div class="feature-icon">
+          <i class="bi bi-shield-check"></i>
+        </div>
+        <h3 class="feature-title">Chính hãng 100%</h3>
+        <p class="feature-description">
+          Tất cả sản phẩm đều được nhập khẩu chính hãng, có đầy đủ giấy tờ và bảo hành từ nhà sản xuất.
+        </p>
+      </div>
+      
+      <div class="feature-card animate-fade-in-up">
+        <div class="feature-icon">
+          <i class="bi bi-truck"></i>
+        </div>
+        <h3 class="feature-title">Giao hàng nhanh</h3>
+        <p class="feature-description">
+          Giao hàng miễn phí toàn quốc trong 24h với đơn hàng từ 2 triệu đồng. Hỗ trợ giao hàng tận nơi.
+        </p>
+      </div>
+      
+      <div class="feature-card animate-fade-in-up">
+        <div class="feature-icon">
+          <i class="bi bi-headset"></i>
+        </div>
+        <h3 class="feature-title">Hỗ trợ 24/7</h3>
+        <p class="feature-description">
+          Đội ngũ tư vấn chuyên nghiệp sẵn sàng hỗ trợ bạn 24/7 qua hotline, chat và email.
+        </p>
+      </div>
+      
+      <div class="feature-card animate-fade-in-up">
+        <div class="feature-icon">
+          <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <h3 class="feature-title">Đổi trả dễ dàng</h3>
+        <p class="feature-description">
+          Chính sách đổi trả trong vòng 15 ngày, hoàn tiền 100% nếu sản phẩm có lỗi từ nhà sản xuất.
+        </p>
+      </div>
+      
+      <div class="feature-card animate-fade-in-up">
+        <div class="feature-icon">
+          <i class="bi bi-credit-card"></i>
+        </div>
+        <h3 class="feature-title">Trả góp 0%</h3>
+        <p class="feature-description">
+          Hỗ trợ trả góp 0% lãi suất qua thẻ tín dụng và các công ty tài chính uy tín.
+        </p>
+      </div>
+      
+      <div class="feature-card animate-fade-in-up">
+        <div class="feature-icon">
+          <i class="bi bi-gift"></i>
+        </div>
+        <h3 class="feature-title">Ưu đãi hấp dẫn</h3>
+        <p class="feature-description">
+          Thường xuyên có các chương trình khuyến mãi, giảm giá và quà tặng hấp dẫn cho khách hàng.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Products Section -->
+<section class="products-section" id="products">
+  <div class="container">
+    <div class="products-header">
+      <div>
+        <h2 class="section-title">Sản phẩm nổi bật</h2>
+        <p class="section-subtitle">Khám phá những sản phẩm công nghệ hot nhất hiện tại</p>
+      </div>
+      
+      <div class="products-tabs">
+        <button class="product-tab active" data-category="all">Tất cả</button>
+        <button class="product-tab" data-category="phone">Điện thoại</button>
+        <button class="product-tab" data-category="laptop">Laptop</button>
+        <button class="product-tab" data-category="accessory">Phụ kiện</button>
+      </div>
+    </div>
+    
+    <div class="products-grid" id="productsGrid">
+      <!-- Product 1 -->
+      <div class="product-card" data-category="phone">
+        <div class="product-image">
+          <img src="/placeholder.svg?height=250&width=250" alt="iPhone 16">
+          <div class="product-badge">Mới</div>
+          <div class="product-actions">
+            <button class="action-btn" title="Yêu thích">
+              <i class="bi bi-heart"></i>
+            </button>
+            <button class="action-btn" title="Xem nhanh">
+              <i class="bi bi-eye"></i>
+            </button>
+            <button class="action-btn" title="So sánh">
+              <i class="bi bi-arrow-left-right"></i>
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">iPhone 16 Pro Max 256GB</h3>
+          <div class="product-rating">
+            <div class="rating-stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-half"></i>
+            </div>
+            <span class="rating-count">(128 đánh giá)</span>
+          </div>
+          <div class="product-price">
+            <div>
+              <span class="price-current">31.990.000₫</span>
+              <span class="price-old">35.990.000₫</span>
+            </div>
+          </div>
+          <button class="add-to-cart">
+            <i class="bi bi-cart-plus"></i>
+            Thêm vào giỏ
+          </button>
+        </div>
+      </div>
+      
+      <!-- Product 2 -->
+      <div class="product-card" data-category="phone">
+        <div class="product-image">
+          <img src="/placeholder.svg?height=250&width=250" alt="Samsung Galaxy S24">
+          <div class="product-badge">Giảm 15%</div>
+          <div class="product-actions">
+            <button class="action-btn" title="Yêu thích">
+              <i class="bi bi-heart"></i>
+            </button>
+            <button class="action-btn" title="Xem nhanh">
+              <i class="bi bi-eye"></i>
+            </button>
+            <button class="action-btn" title="So sánh">
+              <i class="bi bi-arrow-left-right"></i>
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">Samsung Galaxy S24 Ultra 512GB</h3>
+          <div class="product-rating">
+            <div class="rating-stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star"></i>
+            </div>
+            <span class="rating-count">(96 đánh giá)</span>
+          </div>
+          <div class="product-price">
+            <div>
+              <span class="price-current">28.990.000₫</span>
+              <span class="price-old">33.990.000₫</span>
+            </div>
+          </div>
+          <button class="add-to-cart">
+            <i class="bi bi-cart-plus"></i>
+            Thêm vào giỏ
+          </button>
+        </div>
+      </div>
+      
+      <!-- Product 3 -->
+      <div class="product-card" data-category="laptop">
+        <div class="product-image">
+          <img src="/placeholder.svg?height=250&width=250" alt="MacBook Pro">
+          <div class="product-actions">
+            <button class="action-btn" title="Yêu thích">
+              <i class="bi bi-heart"></i>
+            </button>
+            <button class="action-btn" title="Xem nhanh">
+              <i class="bi bi-eye"></i>
+            </button>
+            <button class="action-btn" title="So sánh">
+              <i class="bi bi-arrow-left-right"></i>
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">MacBook Pro 14" M3 Pro 512GB</h3>
+          <div class="product-rating">
+            <div class="rating-stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <span class="rating-count">(84 đánh giá)</span>
+          </div>
+          <div class="product-price">
+            <div>
+              <span class="price-current">52.990.000₫</span>
+            </div>
+          </div>
+          <button class="add-to-cart">
+            <i class="bi bi-cart-plus"></i>
+            Thêm vào giỏ
+          </button>
+        </div>
+      </div>
+      
+      <!-- Product 4 -->
+      <div class="product-card" data-category="accessory">
+        <div class="product-image">
+          <img src="/placeholder.svg?height=250&width=250" alt="AirPods Pro">
+          <div class="product-badge">Bán chạy</div>
+          <div class="product-actions">
+            <button class="action-btn" title="Yêu thích">
+              <i class="bi bi-heart"></i>
+            </button>
+            <button class="action-btn" title="Xem nhanh">
+              <i class="bi bi-eye"></i>
+            </button>
+            <button class="action-btn" title="So sánh">
+              <i class="bi bi-arrow-left-right"></i>
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">AirPods Pro 2nd Generation</h3>
+          <div class="product-rating">
+            <div class="rating-stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-half"></i>
+            </div>
+            <span class="rating-count">(156 đánh giá)</span>
+          </div>
+          <div class="product-price">
+            <div>
+              <span class="price-current">6.790.000₫</span>
+              <span class="price-old">7.490.000₫</span>
+            </div>
+          </div>
+          <button class="add-to-cart">
+            <i class="bi bi-cart-plus"></i>
+            Thêm vào giỏ
+          </button>
+        </div>
+      </div>
+      
+      <!-- Product 5 -->
+      <div class="product-card" data-category="laptop">
+        <div class="product-image">
+          <img src="/placeholder.svg?height=250&width=250" alt="Dell XPS">
+          <div class="product-actions">
+            <button class="action-btn" title="Yêu thích">
+              <i class="bi bi-heart"></i>
+            </button>
+            <button class="action-btn" title="Xem nhanh">
+              <i class="bi bi-eye"></i>
+            </button>
+            <button class="action-btn" title="So sánh">
+              <i class="bi bi-arrow-left-right"></i>
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">Dell XPS 13 Plus Intel Core i7</h3>
+          <div class="product-rating">
+            <div class="rating-stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star"></i>
+            </div>
+            <span class="rating-count">(72 đánh giá)</span>
+          </div>
+          <div class="product-price">
+            <div>
+              <span class="price-current">42.990.000₫</span>
+            </div>
+          </div>
+          <button class="add-to-cart">
+            <i class="bi bi-cart-plus"></i>
+            Thêm vào giỏ
+          </button>
+        </div>
+      </div>
+      
+      <!-- Product 6 -->
+      <div class="product-card" data-category="accessory">
+        <div class="product-image">
+          <img src="/placeholder.svg?height=250&width=250" alt="Apple Watch">
+          <div class="product-badge">Mới</div>
+          <div class="product-actions">
+            <button class="action-btn" title="Yêu thích">
+              <i class="bi bi-heart"></i>
+            </button>
+            <button class="action-btn" title="Xem nhanh">
+              <i class="bi bi-eye"></i>
+            </button>
+            <button class="action-btn" title="So sánh">
+              <i class="bi bi-arrow-left-right"></i>
+            </button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-title">Apple Watch Series 10 GPS 45mm</h3>
+          <div class="product-rating">
+            <div class="rating-stars">
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-fill"></i>
+              <i class="bi bi-star-half"></i>
+            </div>
+            <span class="rating-count">(89 đánh giá)</span>
+          </div>
+          <div class="product-price">
+            <div>
+              <span class="price-current">10.990.000₫</span>
+            </div>
+          </div>
+          <button class="add-to-cart">
+            <i class="bi bi-cart-plus"></i>
+            Thêm vào giỏ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+  <div class="container">
+    <div class="newsletter-content">
+      <h2 class="newsletter-title">Đăng ký nhận tin</h2>
+      <p class="newsletter-description">
+        Nhận thông tin về sản phẩm mới, khuyến mãi đặc biệt và tin tức công nghệ mới nhất
+      </p>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" class="newsletter-input" placeholder="Nhập email của bạn..." required>
+        <button type="submit" class="newsletter-btn">
+          <i class="bi bi-send"></i>
+          Đăng ký
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="main-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h5>Về chúng tôi</h5>
+        <ul>
+          <li><a href="#"><i class="bi bi-info-circle"></i>Giới thiệu</a></li>
+          <li><a href="#"><i class="bi bi-people"></i>Tuyển dụng</a></li>
+          <li><a href="#"><i class="bi bi-newspaper"></i>Tin tức</a></li>
+          <li><a href="#"><i class="bi bi-envelope"></i>Liên hệ</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h5>Hỗ trợ khách hàng</h5>
+        <ul>
+          <li><a href="#"><i class="bi bi-question-circle"></i>Trung tâm trợ giúp</a></li>
+          <li><a href="#"><i class="bi bi-book"></i>Hướng dẫn mua hàng</a></li>
+          <li><a href="#"><i class="bi bi-arrow-repeat"></i>Chính sách đổi trả</a></li>
+          <li><a href="#"><i class="bi bi-shield-check"></i>Bảo hành</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h5>Chính sách</h5>
+        <ul>
+          <li><a href="#"><i class="bi bi-lock"></i>Chính sách bảo mật</a></li>
+          <li><a href="#"><i class="bi bi-file-text"></i>Điều khoản sử dụng</a></li>
+          <li><a href="#"><i class="bi bi-credit-card"></i>Chính sách thanh toán</a></li>
+          <li><a href="#"><i class="bi bi-truck"></i>Chính sách vận chuyển</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h5>Kết nối với chúng tôi</h5>
+        <ul>
+          <li><a href="#"><i class="bi bi-facebook"></i>Facebook</a></li>
+          <li><a href="#"><i class="bi bi-instagram"></i>Instagram</a></li>
+          <li><a href="#"><i class="bi bi-youtube"></i>YouTube</a></li>
+          <li><a href="#"><i class="bi bi-telephone"></i>1900 1234</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2024 testtest. Tất cả quyền được bảo lưu.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+<!-- Custom JS -->
+<script>
+  // Header scroll effect
+  window.addEventListener('scroll', function() {
+    const header = document.getElementById('main-header');
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
+
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+
+  // Product tabs functionality
+  document.querySelectorAll('.product-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      // Remove active class from all tabs
+      document.querySelectorAll('.product-tab').forEach(t => t.classList.remove('active'));
+      // Add active class to clicked tab
+      this.classList.add('active');
+      
+      const category = this.getAttribute('data-category');
+      const products = document.querySelectorAll('.product-card');
+      
+      products.forEach(product => {
+        if (category === 'all' || product.getAttribute('data-category') === category) {
+          product.style.display = 'block';
+          product.style.animation = 'fadeInUp 0.5s ease forwards';
+        } else {
+          product.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Add to cart functionality
+  document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function() {
+      const productCard = this.closest('.product-card');
+      const productTitle = productCard.querySelector('.product-title').textContent;
+      
+      // Add animation
+      this.style.transform = 'scale(0.95)';
+      this.innerHTML = '<i class="bi bi-check"></i> Đã thêm';
+      this.style.backgroundColor = '#10b981';
+      
+      setTimeout(() => {
+        this.style.transform = 'scale(1)';
+        this.innerHTML = '<i class="bi bi-cart-plus"></i> Thêm vào giỏ';
+        this.style.backgroundColor = '';
+      }, 2000);
+      
+      // Show notification
+      showNotification(`Đã thêm "${productTitle}" vào giỏ hàng!`, 'success');
+      
+      // Update cart counter
+      const cartCounter = document.querySelector('.cart-counter');
+      const currentCount = parseInt(cartCounter.textContent);
+      cartCounter.textContent = currentCount + 1;
+    });
+  });
+
+  // Wishlist functionality
+  document.querySelectorAll('.action-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const icon = this.querySelector('i');
+      
+      if (icon.classList.contains('bi-heart')) {
+        icon.classList.remove('bi-heart');
+        icon.classList.add('bi-heart-fill');
+        this.style.color = '#ef4444';
+        showNotification('Đã thêm vào danh sách yêu thích!', 'success');
+      } else if (icon.classList.contains('bi-heart-fill')) {
+        icon.classList.remove('bi-heart-fill');
+        icon.classList.add('bi-heart');
+        this.style.color = '';
+        showNotification('Đã xóa khỏi danh sách yêu thích!', 'info');
+      }
+    });
+  });
+
+  // Newsletter form
+  document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = this.querySelector('.newsletter-input').value;
+    
+    if (email) {
+      showNotification('Đăng ký nhận tin thành công! Cảm ơn bạn đã quan tâm.', 'success');
+      this.querySelector('.newsletter-input').value = '';
+    }
+  });
+
+  // Search functionality
+  document.querySelector('.search-button').addEventListener('click', function() {
+    const searchInput = document.querySelector('.form-control-search');
+    const searchTerm = searchInput.value.trim();
+    
+    if (searchTerm) {
+      showNotification(`Đang tìm kiếm: "${searchTerm}"`, 'info');
+      // Here you would typically redirect to search results page
+    }
+  });
+
+  // Search on Enter key
+  document.querySelector('.form-control-search').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      document.querySelector('.search-button').click();
+    }
+  });
+
+  // Notification function
+  function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 9999;
+      animation: slideInRight 0.3s ease;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    `;
+    
+    switch(type) {
+      case 'success':
+        notification.style.backgroundColor = '#10b981';
+        break;
+      case 'error':
+        notification.style.backgroundColor = '#ef4444';
+        break;
+      case 'info':
+        notification.style.backgroundColor = '#3b82f6';
+        break;
+      default:
+        notification.style.backgroundColor = '#6b7280';
+    }
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease';
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }, 3000);
+  }
+
+  // Add notification animations
+  const notificationStyles = document.createElement('style');
+  notificationStyles.textContent = `
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutRight {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+  `;
+  document.head.appendChild(notificationStyles);
+
+  // Intersection Observer for animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-fade-in-up');
+      }
+    });
+  }, observerOptions);
+
+  // Observe elements for animation
+  document.querySelectorAll('.feature-card, .product-card').forEach(el => {
+    observer.observe(el);
+  });
+
+  // User actions
+  document.querySelectorAll('.icon-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const icon = this.querySelector('i');
+      
+      if (icon.classList.contains('bi-person')) {
+        window.location.href = 'login-register.html';
+      } else if (icon.classList.contains('bi-heart')) {
+        showNotification('Đang chuyển đến danh sách yêu thích...', 'info');
+      } else if (icon.classList.contains('bi-cart')) {
+        showNotification('Đang mở giỏ hàng...', 'info');
+      }
+    });
+  });
+
+  // Category navigation
+  document.querySelectorAll('.categories-list a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const category = this.textContent;
+      showNotification(`Đang xem danh mục: ${category}`, 'info');
+    });
+  });
+</script>
+
+</body>
+</html>

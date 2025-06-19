@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhone 16 - testtest</title>
+  <!-- Import Bootstrap CSS từ CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Swiper CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+
+  <!-- Integrated CSS -->
+  <style>
+    :root {
+      --primary-color: #000000;
+      --secondary-color: #D4AF37;
+      --secondary-hover: #BFA760;
+      --dark-gray: #121212;
+      --medium-gray: #1E1E1E;
+      --light-gray: #2D2D2D;
+      --text-color: #FFFFFF;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --border-radius: 8px;
+      --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      --transition: all 0.25s cubic-bezier(0.645, 0.045, 0.355, 1);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      line-height: 1.5;
+      font-weight: 400;
+      letter-spacing: -0.015em;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--dark-gray);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--light-gray);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-color);
+    }
+
+    /*----------------------------------------------
+     * 1. GENERAL STYLING
+     *----------------------------------------------*/
+    
+    .container {
+      max-width: 1440px;
+      padding: 0 24px;
+    }
+
+    a {
+      color: var(--text-color);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    a:hover {
+      color: var(--secondary-color);
+    }
+
+    /* Subtle animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 2rem 0;
+    }
+
+    /*----------------------------------------------
+     * 2. HEADER & NAVIGATION
+     *----------------------------------------------*/
+
+    /* Top bar */
+    .top-bar {
+      background-color: var(--dark-gray);
+      padding: 8px 0;
+      font-size: 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .top-bar a, .top-bar span {
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+
+    .top-bar a:hover {
+      color: var(--secondary-color);
+    }
+
+    .top-bar-item {
+      margin-right: 24px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .top-bar-item i {
+      margin-right: 6px;
+      font-size: 0.9rem;
+    }
+
+    /* Main header */
+    .main-header {
+      background-color: var(--primary-color);
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: var(--transition);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .main-header.scrolled {
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+      background-color: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Logo styling */
+    .logo-text {
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #FFFFFF, var(--secondary-color));
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Navbar container */
+    .navbar-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Search bar */
+    .search-wrapper {
+      position: relative;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 24px;
+    }
+
+    .form-control-search {
+      background-color: var(--medium-gray);
+      border: none;
+      color: var(--text-color);
+      height: 40px;
+      border-radius: 20px;
+      padding: 0 20px;
+      width: 100%;
+      transition: var(--transition);
+    }
+
+    .form-control-search:focus {
+      background-color: var(--light-gray);
+      box-shadow: 0 0 0 2px var(--secondary-color);
+      color: var(--text-color);
+      outline: none;
+    }
+
+    .form-control-search::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .search-button {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      height: 30px;
+      width: 30px;
+      background-color: transparent;
+      border: none;
+      color: var(--text-secondary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .search-button:hover {
+      color: var(--secondary-color);
+    }
+
+    /* User actions */
+    .user-actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--medium-gray);
+      color: var(--text-color);
+      margin-left: 12px;
+      position: relative;
+      transition: var(--transition);
+      border: none;
+    }
+
+    .icon-btn:hover {
+      background-color: var(--light-gray);
+      color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .cart-counter {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      font-size: 0.7rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Categories navigation */
+    .categories-nav {
+      background-color: var(--dark-gray);
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .categories-list {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      justify-content: center;
+    }
+
+    .categories-list li {
+      margin: 0 16px;
+    }
+
+    .categories-list a {
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.9rem;
+      padding: 6px 0;
+      transition: var(--transition);
+      position: relative;
+      display: inline-block;
+    }
+
+    .categories-list a:hover {
+      color: var(--secondary-color);
+    }
+
+    .categories-list a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 1px;
+      bottom: 0;
+      left: 0;
+      background-color: var(--secondary-color);
+      transition: var(--transition);
+    }
+
+    .categories-list a:hover::after {
+      width: 100%;
+    }
+
+    /*----------------------------------------------
+     * 3. BUTTONS
+     *----------------------------------------------*/
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+      height: 48px;
+      border-radius: 24px;
+      font-weight: 500;
+      transition: var(--transition);
+      border: none;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary-hover);
+      color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--secondary-color);
+      color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .btn-link {
+      background: none;
+      color: var(--text-color);
+      padding: 0;
+      height: auto;
+      font-weight: 400;
+    }
+
+    .btn-link:hover {
+      color: var(--secondary-color);
+    }
+
+    .btn-icon {
+      margin-right: 8px;
+    }
+
+    /*----------------------------------------------
+     * 4. PRODUCT DETAIL STYLES
+     *----------------------------------------------*/
+    
+    .breadcrumb-item {
+      color: var(--text-secondary);
+    }
+
+    .breadcrumb-item a {
+      color: var(--text-secondary);
+    }
+
+    .breadcrumb-item a:hover {
+      color: var(--secondary-color);
+    }
+
+    .breadcrumb-item.active {
+      color: var(--text-color);
+    }
+
+    .breadcrumb-item + .breadcrumb-item::before {
+      color: var(--text-secondary);
+    }
+
+    .product-container {
+      margin: 40px 0 80px;
+    }
+
+    /* Product Gallery */
+    .product-gallery {
+      position: relative;
+      margin-bottom: 30px;
+    }
+
+    .gallery-main {
+      background-color: var(--medium-gray);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      margin-bottom: 15px;
+    }
+
+    .gallery-main-img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      background-color: var(--medium-gray);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      aspect-ratio: 1/1;
+    }
+
+    .gallery-thumbs {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .gallery-thumb {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: var(--transition);
+      background-color: var(--medium-gray);
+      padding: 5px;
+    }
+
+    .gallery-thumb.active {
+      border-color: var(--secondary-color);
+    }
+
+    .gallery-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Product Info */
+    .product-info {
+      padding-left: 20px;
+    }
+
+    .product-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .product-meta {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .product-rating {
+      display: flex;
+      align-items: center;
+    }
+
+    .rating-stars {
+      color: var(--secondary-color);
+      margin-right: 5px;
+    }
+
+    .rating-count {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .product-sku {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .product-stock {
+      display: inline-flex;
+      align-items: center;
+      color: #10b981;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .product-stock i {
+      margin-right: 5px;
+    }
+
+    .product-price {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+    }
+
+    .old-price {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin-left: 10px;
+    }
+
+    .discount-badge {
+      display: inline-block;
+      background-color: #ef4444;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+
+    .product-description {
+      color: var(--text-secondary);
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+
+    /* Product Options */
+    .product-options {
+      margin-bottom: 30px;
+    }
+
+    .option-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-color);
+    }
+
+    .color-options {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      border: 2px solid transparent;
+      transition: var(--transition);
+    }
+
+    .color-option.active {
+      border-color: var(--secondary-color);
+    }
+
+    .color-option::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+    }
+
+    .color-option[data-color="purple"]::after {
+      background-color: #7B68EE; /* Màu xanh tím */
+    }
+
+    .color-option[data-color="green"]::after {
+      background-color: #32CD32; /* Màu xanh lá mạ */
+    }
+
+    .color-option[data-color="pink"]::after {
+      background-color: #FF69B4; /* Màu hồng */
+    }
+
+    .color-option[data-color="white"]::after {
+      background-color: #f8fafc; /* Màu trắng */
+    }
+
+    .storage-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .storage-option {
+      padding: 10px 20px;
+      border-radius: var(--border-radius);
+      background-color: var(--dark-gray);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .storage-option.active {
+      border-color: var(--secondary-color);
+      background-color: rgba(212, 175, 55, 0.1);
+    }
+
+    .storage-option:hover {
+      border-color: var(--secondary-color);
+    }
+
+    /* Quantity Control */
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      background-color: var(--dark-gray);
+      border-radius: 24px;
+      overflow: hidden;
+      height: 48px;
+      width: 140px;
+      margin-bottom: 20px;
+    }
+
+    .quantity-btn {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      border: none;
+      color: var(--text-color);
+      transition: var(--transition);
+      cursor: pointer;
+      font-size: 1.25rem;
+    }
+
+    .quantity-btn:hover {
+      background-color: var(--light-gray);
+      color: var(--secondary-color);
+    }
+
+    .quantity-input {
+      width: 44px;
+      height: 48px;
+      border: none;
+      background-color: transparent;
+      color: var(--text-color);
+      text-align: center;
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+
+    .quantity-input:focus {
+      outline: none;
+    }
+
+    /* Action Buttons */
+    .product-actions {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .wishlist-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--dark-gray);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .wishlist-btn:hover {
+      border-color: var(--secondary-color);
+      color: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .wishlist-btn.active {
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+
+    /* Product Features */
+    .product-features {
+      margin-bottom: 30px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .feature-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 15px;
+      color: var(--secondary-color);
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* Product Tabs */
+    .product-tabs {
+      margin-top: 60px;
+    }
+
+    .nav-tabs {
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 30px;
+    }
+
+    .nav-tabs .nav-link {
+      color: var(--text-secondary);
+      background-color: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 10px 20px;
+      font-weight: 500;
+      transition: var(--transition);
+      margin-right: 20px;
+    }
+
+    .nav-tabs .nav-link:hover {
+      color: var(--text-color);
+    }
+
+    .nav-tabs .nav-link.active {
+      color: var(--secondary-color);
+      background-color: transparent;
+      border-bottom: 2px solid var(--secondary-color);
+    }
+
+    .tab-content {
+      padding: 20px 0;
+    }
+
+    .tab-pane {
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    /* Specifications */
+    .specs-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 30px;
+    }
+
+    .specs-table tr:nth-child(odd) {
+      background-color: var(--medium-gray);
+    }
+
+    .specs-table th, .specs-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .specs-table th {
+      color: var(--text-secondary);
+      font-weight: 500;
+      width: 30%;
+    }
+
+    .specs-table td {
+      color: var(--text-color);
+    }
+
+    /* Reviews */
+    .review-summary {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      background-color: var(--medium-gray);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .review-average {
+      text-align: center;
+      padding-right: 20px;
+      margin-right: 20px;
+      border-right: 1px solid var(--border-color);
+    }
+
+    .average-score {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--secondary-color);
+      line-height: 1;
+    }
+
+    .average-stars {
+      color: var(--secondary-color);
+      margin: 5px 0;
+    }
+
+    .total-reviews {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .review-bars {
+      flex: 1;
+    }
+
+    .review-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .review-bar-label {
+      width: 30px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-right: 10px;
+    }
+
+    .review-bar-track {
+      flex: 1;
+      height: 8px;
+      background-color: var(--dark-gray);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-right: 10px;
+    }
+
+    .review-bar-fill {
+      height: 100%;
+      background-color: var(--secondary-color);
+      border-radius: 4px;
+    }
+
+    .review-bar-percent {
+      width: 40px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      text-align: right;
+    }
+
+    .review-item {
+      margin-bottom: 30px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .reviewer-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .review-date {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .review-rating {
+      color: var(--secondary-color);
+    }
+
+    .review-content {
+      color: var(--text-secondary);
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+
+    .review-images {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .review-image {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .review-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Related Products */
+    .related-products {
+      margin-top: 60px;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      width: 40px;
+      height: 2px;
+      background-color: var(--secondary-color);
+      bottom: -8px;
+      left: 0;
+    }
+
+    .product-card {
+      background-color: var(--medium-gray);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: var(--transition);
+      height: 100%;
+      border: 1px solid var(--border-color);
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--box-shadow);
+      border-color: var(--secondary-color);
+    }
+
+    .product-card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      background-color: var(--dark-gray);
+      padding: 20px;
+    }
+
+    .product-card-body {
+      padding: 15px;
+    }
+
+    .product-card-title {
+      font-weight: 500;
+      margin-bottom: 10px;
+      font-size: 1rem;
+      line-height: 1.4;
+      height: 2.8em;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .product-card-price {
+      font-weight: 600;
+      color: var(--secondary-color);
+      margin-bottom: 10px;
+    }
+
+    .product-card-rating {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .product-card-rating .rating-stars {
+      font-size: 0.8rem;
+    }
+
+    .product-card-rating .rating-count {
+      font-size: 0.8rem;
+    }
+
+    /* Swiper Styles */
+    .swiper {
+      width: 100%;
+      height: 100%;
+    }
+
+    .swiper-button-next, .swiper-button-prev {
+      color: var(--secondary-color);
+    }
+
+    .swiper-pagination-bullet {
+      background: var(--text-secondary);
+    }
+
+    .swiper-pagination-bullet-active {
+      background: var(--secondary-color);
+    }
+
+    /*----------------------------------------------
+     * 5. RESPONSIVE DESIGN
+     *----------------------------------------------*/
+
+    @media (max-width: 992px) {
+      .search-wrapper {
+        margin: 20px 0;
+        order: 3;
+        width: 100%;
+      }
+      
+      .navbar-container {
+        flex-wrap: wrap;
+      }
+      
+      .product-info {
+        padding-left: 0;
+        margin-top: 30px;
+      }
+
+      .product-title {
+        font-size: 2rem;
+      }
+
+      .product-price {
+        font-size: 1.75rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .top-bar {
+        display: none;
+      }
+      
+      .categories-list {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding: 0.5rem 0;
+      }
+      
+      .categories-list li {
+        margin: 0 12px;
+        white-space: nowrap;
+      }
+      
+      .categories-list li:first-child {
+        margin-left: 16px;
+      }
+      
+      .categories-list li:last-child {
+        margin-right: 16px;
+      }
+      
+      .gallery-thumb {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .product-actions {
+        flex-wrap: wrap;
+      }
+      
+      .add-to-cart-btn {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .user-actions .btn-text {
+        display: none;
+      }
+      
+      .product-title {
+        font-size: 1.5rem;
+      }
+      
+      .product-price {
+        font-size: 1.5rem;
+      }
+      
+      .old-price {
+        font-size: 1rem;
+      }
+      
+      .color-options, .storage-options {
+        justify-content: center;
+      }
+      
+      .review-average {
+        padding-right: 15px;
+        margin-right: 15px;
+      }
+      
+      .average-score {
+        font-size: 2rem;
+      }
+      
+      .review-bar-label {
+        width: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+
+<!-- Main Header -->
+<header class="main-header" id="main-header">
+  <div class="container">
+    <div class="navbar-container">
+      <!-- Logo -->
+      <a href="/" class="logo-text">test</a>
+
+      <!-- Search -->
+      <div class="search-wrapper">
+        <input type="search" class="form-control form-control-search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search">
+        <button class="search-button" type="submit">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+
+      <!-- User Actions -->
+      <div class="user-actions">
+        <button class="icon-btn" title="Tài khoản">
+          <i class="bi bi-person"></i>
+        </button>
+        <button class="icon-btn" title="Sản phẩm yêu thích">
+          <i class="bi bi-heart"></i>
+        </button>
+        <button class="icon-btn" title="Giỏ hàng">
+          <i class="bi bi-cart"></i>
+          <span class="cart-counter">3</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Categories Navigation -->
+<div class="categories-nav">
+  <div class="container">
+    <ul class="categories-list">
+      <li><a href="#">iPhone</a></li>
+      <li><a href="#">Samsung</a></li>
+      <li><a href="#">Xiaomi</a></li>
+      <li><a href="#">OPPO</a></li>
+      <li><a href="#">Vivo</a></li>
+      <li><a href="#">Laptop</a></li>
+      <li><a href="#">Tablet</a></li>
+      <li><a href="#">Smartwatch</a></li>
+      <li><a href="#">Tai nghe</a></li>
+      <li><a href="#">Phụ kiện</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Product Detail Section -->
+<section class="product-container">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
+        <li class="breadcrumb-item"><a href="#">iPhone</a></li>
+        <li class="breadcrumb-item active" aria-current="page">iPhone 16</li>
+      </ol>
+    </nav>
+
+    <div class="row">
+      <!-- Product Gallery -->
+      <div class="col-lg-6">
+        <div class="product-gallery">
+          <div class="gallery-main">
+            <img src="images/iphone-16-f-1-blue.jpg" alt="iPhone 16" class="gallery-main-img" id="mainImage">
+          </div>
+          <div class="gallery-thumbs">
+            <div class="gallery-thumb active" data-image="images/iphone-16-f-1-blue.jpg">
+              <img src="images/iphone-16-f-1-blue.jpg" alt="iPhone 16 - Main">
+            </div>
+            <div class="gallery-thumb" data-image="images/iphone-16-f-2-blue.jpg">
+              <img src="images/iphone-16-f-2-blue.jpg" alt="iPhone 16 - Side">
+            </div>
+            <div class="gallery-thumb" data-image="images/iphone-16-f-3-blue.jpg">
+              <img src="images/iphone-16-f-3-blue.jpg" alt="iPhone 16 - Back">
+            </div>
+            <div class="gallery-thumb" data-image="images/iphone-16-f-4-blue.jpg">
+              <img src="images/iphone-16-f-4-blue.jpg" alt="iPhone 16 - Camera">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="col-lg-6">
+        <div class="product-info">
+          <h1 class="product-title">iPhone 16</h1>
+          
+          <div class="product-meta">
+            <div class="product-rating">
+              <div class="rating-stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+              </div>
+              <span class="rating-count">(128 đánh giá)</span>
+            </div>
+            <span class="product-sku">SKU: IP16-256-TN</span>
+            <span class="product-stock"><i class="bi bi-check-circle-fill"></i> Còn hàng</span>
+          </div>
+          
+          <div class="product-price">
+            31.990.000₫ <span class="old-price">35.990.000₫</span> <span class="discount-badge">-11%</span>
+          </div>
+          
+          <p class="product-description">
+            iPhone 16 với chip A18 mạnh mẽ, camera chuyên nghiệp 48MP, màn hình Super Retina XDR 6.7 inch và thời lượng pin cả ngày. Thiết kế từ titan hàng không vũ trụ bền bỉ, nhẹ và sang trọng với nhiều cải tiến đột phá.
+          </p>
+          
+          <div class="product-options">
+            <div class="option-title">Màu sắc</div>
+            <div class="color-options">
+              <div class="color-option active" data-color="purple" title="Xanh tím"></div>
+              <div class="color-option" data-color="green" title="Xanh lá mạ"></div>
+              <div class="color-option" data-color="pink" title="Hồng"></div>
+              <div class="color-option" data-color="white" title="Trắng"></div>
+            </div>
+            
+            <div class="option-title">Dung lượng</div>
+            <div class="storage-options">
+              <div class="storage-option">128GB</div>
+              <div class="storage-option active">256GB</div>
+              <div class="storage-option">512GB</div>
+              <div class="storage-option">1TB</div>
+            </div>
+          </div>
+          
+          <div class="quantity-control">
+            <button class="quantity-btn" id="decreaseQuantity">-</button>
+            <input type="text" class="quantity-input" value="1" readonly id="quantityInput">
+            <button class="quantity-btn" id="increaseQuantity">+</button>
+          </div>
+          
+          <div class="product-actions">
+            <button class="btn btn-primary add-to-cart-btn">
+              <i class="bi bi-cart-plus btn-icon"></i> Thêm vào giỏ hàng
+            </button>
+            <button class="wishlist-btn" id="wishlistBtn">
+              <i class="bi bi-heart"></i>
+            </button>
+          </div>
+          
+          <div class="product-features">
+            <div class="feature-item">
+              <i class="bi bi-truck feature-icon"></i>
+              <div class="feature-text">Giao hàng miễn phí cho đơn hàng từ 2 triệu đồng</div>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-shield-check feature-icon"></i>
+              <div class="feature-text">Bảo hành chính hãng 12 tháng</div>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-arrow-repeat feature-icon"></i>
+              <div class="feature-text">Đổi trả trong vòng 15 ngày</div>
+            </div>
+            <div class="feature-item">
+              <i class="bi bi-credit-card feature-icon"></i>
+              <div class="feature-text">Trả góp 0% lãi suất</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Tabs -->
+    <div class="product-tabs">
+      <ul class="nav nav-tabs" id="productTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" aria-controls="description" aria-selected="true">Mô tả</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs" type="button" role="tab" aria-controls="specs" aria-selected="false">Thông số kỹ thuật</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" aria-controls="reviews" aria-selected="false">Đánh giá (128)</button>
+        </li>
+      </ul>
+      <div class="tab-content" id="productTabsContent">
+        <!-- Description Tab -->
+        <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+          <h3>iPhone 16 - Đỉnh cao công nghệ</h3>
+          <p>iPhone 16 là chiếc iPhone mạnh mẽ nhất, đa năng nhất và tiên tiến nhất từ trước đến nay. Với thiết kế từ titan hàng không vũ trụ - vật liệu cùng loại được sử dụng trong tàu thăm dò sao Hỏa, iPhone 16 vừa bền bỉ vừa nhẹ đến bất ngờ.</p>
+          
+          <h4>Chip A18 - Hiệu năng đột phá</h4>
+          <p>A18 là chip mới nhất trong ngành smartphone được chế tạo theo quy trình tiên tiến, mang đến hiệu năng và hiệu quả năng lượng vượt trội. CPU 8 lõi mới nhanh hơn 20% và GPU 6 lõi mới nhanh hơn tới 30% so với thế hệ trước.</p>
+          
+          <h4>Hệ thống camera chuyên nghiệp</h4>
+          <p>Camera chính 48MP với khẩu độ f/1.6 cho phép chụp ảnh độ phân giải cao với chi tiết sắc nét. Camera Ultra Wide 12MP với khẩu độ f/2.2 giúp bạn bắt trọn khung cảnh rộng lớn. Camera Telephoto 12MP với khẩu độ f/2.8 và zoom quang học 5x cho phép bạn chụp từ xa mà vẫn giữ được chất lượng hình ảnh.</p>
+          
+          <h4>Màn hình Super Retina XDR</h4>
+          <p>Màn hình OLED 6.7 inch với độ phân giải 2796 x 1290 pixel ở mật độ 460 ppi mang đến hình ảnh sắc nét, màu sắc chính xác và độ tương phản cao. Công nghệ ProMotion với tần số quét 120Hz giúp mọi thao tác mượt mà hơn bao giờ hết.</p>
+          
+          <h4>Pin bền bỉ cả ngày</h4>
+          <p>iPhone 16 có thời lượng pin lên đến 32 giờ xem video, cho phép bạn sử dụng cả ngày mà không lo hết pin. Hỗ trợ sạc nhanh 25W giúp sạc đến 50% pin chỉ trong 25 phút.</p>
+        </div>
+        
+        <!-- Specifications Tab -->
+        <div class="tab-pane fade" id="specs" role="tabpanel" aria-labelledby="specs-tab">
+          <table class="specs-table">
+            <tr>
+              <th>Màn hình</th>
+              <td>Super Retina XDR OLED 6.7 inch, 2796 x 1290 pixel, 460 ppi, ProMotion 120Hz, HDR</td>
+            </tr>
+            <tr>
+              <th>Chip</th>
+              <td>A18, CPU 8 lõi, GPU 6 lõi, Neural Engine 18 lõi</td>
+            </tr>
+            <tr>
+              <th>Dung lượng</th>
+              <td>256GB</td>
+            </tr>
+            <tr>
+              <th>Camera chính</th>
+              <td>48MP, khẩu độ f/1.6, OIS, Smart HDR 5</td>
+            </tr>
+            <tr>
+              <th>Camera Ultra Wide</th>
+              <td>12MP, khẩu độ f/2.2, góc nhìn 120°</td>
+            </tr>
+            <tr>
+              <th>Camera Telephoto</th>
+              <td>12MP, khẩu độ f/2.8, zoom quang học 5x</td>
+            </tr>
+            <tr>
+              <th>Camera trước</th>
+              <td>12MP, khẩu độ f/1.9, Autofocus</td>
+            </tr>
+            <tr>
+              <th>Video</th>
+              <td>4K@24/30/60fps, 1080p@30/60/120/240fps, Dolby Vision HDR, ProRes</td>
+            </tr>
+            <tr>
+              <th>Pin</th>
+              <td>Lên đến 32 giờ xem video, sạc nhanh 25W, sạc không dây MagSafe 15W</td>
+            </tr>
+            <tr>
+              <th>Kết nối</th>
+              <td>5G, Wi-Fi 7, Bluetooth 5.4, NFC, USB-C</td>
+            </tr>
+            <tr>
+              <th>Bảo mật</th>
+              <td>Face ID</td>
+            </tr>
+            <tr>
+              <th>Chống nước</th>
+              <td>IP68 (độ sâu tối đa 6 mét trong tối đa 30 phút)</td>
+            </tr>
+            <tr>
+              <th>Kích thước</th>
+              <td>159.9 x 76.7 x 8.25 mm</td>
+            </tr>
+            <tr>
+              <th>Trọng lượng</th>
+              <td>219 gram</td>
+            </tr>
+            <tr>
+              <th>Hệ điều hành</th>
+              <td>iOS 18</td>
+            </tr>
+          </table>
+        </div>
+        
+        <!-- Reviews Tab -->
+        <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+          <div class="review-summary">
+            <div class="review-average">
+              <div class="average-score">4.7</div>
+              <div class="average-stars">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+              </div>
+              <div class="total-reviews">128 đánh giá</div>
+            </div>
+            <div class="review-bars">
+              <div class="review-bar">
+                <div class="review-bar-label">5★</div>
+                <div class="review-bar-track">
+                  <div class="review-bar-fill" style="width: 75%"></div>
+                </div>
+                <div class="review-bar-percent">75%</div>
+              </div>
+              <div class="review-bar">
+                <div class="review-bar-label">4★</div>
+                <div class="review-bar-track">
+                  <div class="review-bar-fill" style="width: 20%"></div>
+                </div>
+                <div class="review-bar-percent">20%</div>
+              </div>
+              <div class="review-bar">
+                <div class="review-bar-label">3★</div>
+                <div class="review-bar-track">
+                  <div class="review-bar-fill" style="width: 3%"></div>
+                </div>
+                <div class="review-bar-percent">3%</div>
+              </div>
+              <div class="review-bar">
+                <div class="review-bar-label">2★</div>
+                <div class="review-bar-track">
+                  <div class="review-bar-fill" style="width: 1%"></div>
+                </div>
+                <div class="review-bar-percent">1%</div>
+              </div>
+              <div class="review-bar">
+                <div class="review-bar-label">1★</div>
+                <div class="review-bar-track">
+                  <div class="review-bar-fill" style="width: 1%"></div>
+                </div>
+                <div class="review-bar-percent">1%</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Review Items -->
+          <div class="review-item">
+            <div class="review-header">
+              <div>
+                <div class="reviewer-name">Nguyễn Văn A</div>
+                <div class="review-date">15/03/2024</div>
+              </div>
+              <div class="review-rating">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+              </div>
+            </div>
+            <div class="review-content">
+              Đây là chiếc iPhone tốt nhất mà tôi từng sử dụng. Camera chụp ảnh cực kỳ đẹp, pin dùng cả ngày không lo hết. Màn hình 120Hz mượt mà, chơi game rất đã. Thiết kế titan nhẹ hơn nhiều so với iPhone 15 Pro Max mà tôi đã dùng trước đó. Rất đáng đồng tiền bát gạo!
+            </div>
+            <div class="review-images">
+              <div class="review-image">
+                <img src="images/iphone_16.jpg" alt="Review Image">
+              </div>
+              <div class="review-image">
+                <img src="images/airpods-4.jpg" alt="Review Image">
+              </div>
+            </div>
+          </div>
+          
+          <div class="review-item">
+            <div class="review-header">
+              <div>
+                <div class="reviewer-name">Trần Thị B</div>
+                <div class="review-date">10/03/2024</div>
+              </div>
+              <div class="review-rating">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star"></i>
+              </div>
+            </div>
+            <div class="review-content">
+              Camera chụp ảnh rất đẹp, màu sắc trung thực. Pin dùng được cả ngày với mức sử dụng cao. Màn hình rất sắc nét và mượt mà. Tuy nhiên, giá hơi cao và cổng USB-C mới cần phải mua lại phụ kiện. Nhìn chung vẫn rất hài lòng với sản phẩm.
+            </div>
+          </div>
+          
+          <div class="review-item">
+            <div class="review-header">
+              <div>
+                <div class="reviewer-name">Lê Văn C</div>
+                <div class="review-date">05/03/2024</div>
+              </div>
+              <div class="review-rating">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-half"></i>
+              </div>
+            </div>
+            <div class="review-content">
+              Nâng cấp từ iPhone 13 Pro, cảm nhận được sự khác biệt rõ rệt về hiệu năng và camera. Zoom 5x rất hữu ích khi chụp xa. Màu Titan Tự Nhiên rất đẹp và sang trọng. Thời lượng pin tốt hơn nhiều so với các đời trước. Rất hài lòng với sản phẩm.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="related-products">
+      <h2 class="section-title">Sản phẩm liên quan</h2>
+      
+      <div class="swiper related-swiper">
+        <div class="swiper-wrapper">
+          <!-- Product Card 1 -->
+          <div class="swiper-slide">
+            <div class="product-card">
+              <img src="images/iphone_16.jpg" alt="iPhone 16" class="product-card-img">
+              <div class="product-card-body">
+                <h5 class="product-card-title">iPhone 16 128GB</h5>
+                <div class="product-card-price">26.990.000₫</div>
+                <div class="product-card-rating">
+                  <div class="rating-stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star"></i>
+                  </div>
+                  <span class="rating-count">(98)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Product Card 2 -->
+          <div class="swiper-slide">
+            <div class="product-card">
+              <img src="images/iphone-16-f-1-green.jpt.jpg" alt="iPhone 16 Pro" class="product-card-img">
+              <div class="product-card-body">
+                <h5 class="product-card-title">iPhone 16 Pro 256GB</h5>
+                <div class="product-card-price">29.990.000₫</div>
+                <div class="product-card-rating">
+                  <div class="rating-stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-half"></i>
+                  </div>
+                  <span class="rating-count">(112)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Product Card 3 -->
+          <div class="swiper-slide">
+            <div class="product-card">
+              <img src="images/airpods-4.jpg" alt="AirPods Pro 2" class="product-card-img">
+              <div class="product-card-body">
+                <h5 class="product-card-title">AirPods Pro 2</h5>
+                <div class="product-card-price">6.790.000₫</div>
+                <div class="product-card-rating">
+                  <div class="rating-stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star"></i>
+                  </div>
+                  <span class="rating-count">(76)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Product Card 4 -->
+          <div class="swiper-slide">
+            <div class="product-card">
+              <img src="images/apple_watch_series_10.jpg" alt="Apple Watch Series 9" class="product-card-img">
+              <div class="product-card-body">
+                <h5 class="product-card-title">Apple Watch Series 9</h5>
+                <div class="product-card-price">10.990.000₫</div>
+                <div class="product-card-rating">
+                  <div class="rating-stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-half"></i>
+                  </div>
+                  <span class="rating-count">(64)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Product Card 5 -->
+          <div class="swiper-slide">
+            <div class="product-card">
+              <img src="images/iphone-16-f-1-white.jpg" alt="MacBook Pro" class="product-card-img">
+              <div class="product-card-body">
+                <h5 class="product-card-title">MacBook Pro</h5>
+                <div class="product-card-price">39.990.000₫</div>
+                <div class="product-card-rating">
+                  <div class="rating-stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-half"></i>
+                  </div>
+                  <span class="rating-count">(89)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-pagination"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bootstrap JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+<!-- Custom JS -->
+<script>
+  // Header scroll effect
+  window.addEventListener('scroll', function() {
+    const header = document.getElementById('main-header');
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
+
+  // Gallery thumbnails
+  document.querySelectorAll('.gallery-thumb').forEach(thumb => {
+    thumb.addEventListener('click', function() {
+      // Remove active class from all thumbnails
+      document.querySelectorAll('.gallery-thumb').forEach(t => {
+        t.classList.remove('active');
+      });
+      
+      // Add active class to clicked thumbnail
+      this.classList.add('active');
+      
+      // Update main image
+      const mainImage = document.getElementById('mainImage');
+      mainImage.src = this.getAttribute('data-image');
+    });
+  });
+
+  // Color options
+  document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', function() {
+      // Remove active class from all color options
+      document.querySelectorAll('.color-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      
+      // Add active class to clicked option
+      this.classList.add('active');
+      
+      // Get selected color
+      const color = this.getAttribute('data-color');
+      
+      // Update images based on color
+      const mainImage = document.getElementById('mainImage');
+      const galleryThumbs = document.querySelectorAll('.gallery-thumb');
+      
+      if (color === 'purple') {
+        // Màu xanh tím = blue trong thư mục images
+        mainImage.src = 'images/iphone-16-f-1-blue.jpg';
+        galleryThumbs[0].setAttribute('data-image', 'images/iphone-16-f-1-blue.jpg');
+        galleryThumbs[0].querySelector('img').src = 'images/iphone-16-f-1-blue.jpg';
+        galleryThumbs[1].setAttribute('data-image', 'images/iphone-16-f-2-blue.jpg');
+        galleryThumbs[1].querySelector('img').src = 'images/iphone-16-f-2-blue.jpg';
+        galleryThumbs[2].setAttribute('data-image', 'images/iphone-16-f-3-blue.jpg');
+        galleryThumbs[2].querySelector('img').src = 'images/iphone-16-f-3-blue.jpg';
+        galleryThumbs[3].setAttribute('data-image', 'images/iphone-16-f-4-blue.jpg');
+        galleryThumbs[3].querySelector('img').src = 'images/iphone-16-f-4-blue.jpg';
+      } else if (color === 'green') {
+        mainImage.src = 'images/iphone-16-f-1-green.jpt.jpg';
+        galleryThumbs[0].setAttribute('data-image', 'images/iphone-16-f-1-green.jpt.jpg');
+        galleryThumbs[0].querySelector('img').src = 'images/iphone-16-f-1-green.jpt.jpg';
+        galleryThumbs[1].setAttribute('data-image', 'images/iphone-16-f-2-green.jpg');
+        galleryThumbs[1].querySelector('img').src = 'images/iphone-16-f-2-green.jpg';
+        galleryThumbs[2].setAttribute('data-image', 'images/iphone-16-f-3-green.jpg');
+        galleryThumbs[2].querySelector('img').src = 'images/iphone-16-f-3-green.jpg';
+        galleryThumbs[3].setAttribute('data-image', 'images/iphone-16-f-4-green.jpg');
+        galleryThumbs[3].querySelector('img').src = 'images/iphone-16-f-4-green.jpg';
+      } else if (color === 'pink') {
+        mainImage.src = 'images/iphone-16-f-1-pink.jpg';
+        galleryThumbs[0].setAttribute('data-image', 'images/iphone-16-f-1-pink.jpg');
+        galleryThumbs[0].querySelector('img').src = 'images/iphone-16-f-1-pink.jpg';
+        galleryThumbs[1].setAttribute('data-image', 'images/iphone-16-f-2-pink.jpg');
+        galleryThumbs[1].querySelector('img').src = 'images/iphone-16-f-2-pink.jpg';
+        galleryThumbs[2].setAttribute('data-image', 'images/iphone-16-f-3-pink.jpg');
+        galleryThumbs[2].querySelector('img').src = 'images/iphone-16-f-3-pink.jpg';
+        galleryThumbs[3].setAttribute('data-image', 'images/iphone-16-f-4-pink.jpg');
+        galleryThumbs[3].querySelector('img').src = 'images/iphone-16-f-4-pink.jpg';
+      } else if (color === 'white') {
+        mainImage.src = 'images/iphone-16-f-1-white.jpg';
+        galleryThumbs[0].setAttribute('data-image', 'images/iphone-16-f-1-white.jpg');
+        galleryThumbs[0].querySelector('img').src = 'images/iphone-16-f-1-white.jpg';
+        galleryThumbs[1].setAttribute('data-image', 'images/iphone-16-f-2-white.jpg');
+        galleryThumbs[1].querySelector('img').src = 'images/iphone-16-f-2-white.jpg';
+        galleryThumbs[2].setAttribute('data-image', 'images/iphone-16-f-3-white.jpg');
+        galleryThumbs[2].querySelector('img').src = 'images/iphone-16-f-3-white.jpg';
+        galleryThumbs[3].setAttribute('data-image', 'images/iphone-16-f-4-white.jpg');
+        galleryThumbs[3].querySelector('img').src = 'images/iphone-16-f-4-white.jpg';
+      }
+      
+      // Activate first thumbnail
+      galleryThumbs.forEach(thumb => thumb.classList.remove('active'));
+      galleryThumbs[0].classList.add('active');
+    });
+  });
+
+  // Storage options
+  document.querySelectorAll('.storage-option').forEach(option => {
+    option.addEventListener('click', function() {
+      // Remove active class from all storage options
+      document.querySelectorAll('.storage-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      
+      // Add active class to clicked option
+      this.classList.add('active');
+    });
+  });
+
+  // Quantity control
+  const quantityInput = document.getElementById('quantityInput');
+  
+  document.getElementById('decreaseQuantity').addEventListener('click', function() {
+    let value = parseInt(quantityInput.value);
+    if (value > 1) {
+      quantityInput.value = value - 1;
+    }
+  });
+  
+  document.getElementById('increaseQuantity').addEventListener('click', function() {
+    let value = parseInt(quantityInput.value);
+    quantityInput.value = value + 1;
+  });
+
+  // Wishlist button
+  document.getElementById('wishlistBtn').addEventListener('click', function() {
+    this.classList.toggle('active');
+    if (this.classList.contains('active')) {
+      this.innerHTML = '<i class="bi bi-heart-fill"></i>';
+    } else {
+      this.innerHTML = '<i class="bi bi-heart"></i>';
+    }
+  });
+
+  // Add to cart button
+  document.querySelector('.add-to-cart-btn').addEventListener('click', function() {
+    // Get selected options
+    const color = document.querySelector('.color-option.active').getAttribute('data-color');
+    const storage = document.querySelector('.storage-option.active').textContent;
+    const quantity = document.getElementById('quantityInput').value;
+    
+    // Show confirmation message (in a real app, this would add to cart)
+    alert(`Đã thêm iPhone 16 ${storage} màu ${color} (số lượng: ${quantity}) vào giỏ hàng!`);
+  });
+
+  // Initialize Swiper
+  const swiper = new Swiper('.related-swiper', {
+    slidesPerView: 1,
+    spaceBetween: 20,
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    breakpoints: {
+      640: {
+        slidesPerView: 2,
+      },
+      768: {
+        slidesPerView: 3,
+      },
+      1024: {
+        slidesPerView: 4,
+      },
+    }
+  });
+</script>
+</body>
+</html>
