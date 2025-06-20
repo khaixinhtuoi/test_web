@@ -39,6 +39,7 @@ src/
 
 - `POST /api/users/register` - Đăng ký người dùng mới
 - `POST /api/users/login` - Đăng nhập và nhận JWT token
+- `/api/auth/logout` - Đăng xuất
 
 ### Users
 

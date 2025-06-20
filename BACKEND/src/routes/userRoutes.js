@@ -17,6 +17,9 @@ router.put('/change-password', userController.changePassword);
 // Routes chỉ dành cho admin
 router.use(authMiddleware.admin);
 router.get('/', userController.getAllUsers);
+router.post('/', userController.createUser);
+router.put('/:userId', userController.updateUserById);
+router.delete('/:userId', userController.deleteUser);
 router.put('/:userId/status', userController.updateUserStatus);
 
 module.exports = router; 

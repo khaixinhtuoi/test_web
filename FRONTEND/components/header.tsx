@@ -11,11 +11,15 @@ import {
   SheetContent, 
   SheetTrigger 
 } from "@/components/ui/sheet"
+import { authAPI } from "@/lib/api"
+import { toast } from "sonner"
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userData, setUserData] = useState<any>(null)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,10 +32,20 @@ export function Header() {
 
     window.addEventListener("scroll", handleScroll)
     
-    // Kiểm tra trạng thái đăng nhập từ localStorage hoặc cookies
+    // Kiểm tra trạng thái đăng nhập từ localStorage
     const checkLoginStatus = () => {
-      const token = localStorage.getItem('userToken')
+      const token = localStorage.getItem('accessToken')
+      const userDataStr = localStorage.getItem('userData')
       setIsLoggedIn(!!token)
+      
+      if (userDataStr) {
+        try {
+          const parsedUserData = JSON.parse(userDataStr)
+          setUserData(parsedUserData)
+        } catch (error) {
+          console.error('Lỗi khi parse userData:', error)
+        }
+      }
     }
     
     checkLoginStatus()
@@ -40,6 +54,33 @@ export function Header() {
       window.removeEventListener("scroll", handleScroll)
     }
   }, [])
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true)
+      
+      // Gọi API đăng xuất
+      await authAPI.logout()
+      
+      // Xóa thông tin đăng nhập khỏi localStorage
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('userData')
+      
+      // Cập nhật trạng thái
+      setIsLoggedIn(false)
+      setUserData(null)
+      
+      toast.success('Đăng xuất thành công')
+      
+      // Chuyển hướng đến trang chủ nếu cần
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Lỗi khi đăng xuất:', error)
+      toast.error('Có lỗi xảy ra khi đăng xuất')
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
 
   const categories = [
     "iPhone",
@@ -67,18 +108,14 @@ export function Header() {
             {isLoggedIn ? (
               <div className="flex items-center space-x-4">
                 <Link href="/profile" className="hover:text-gold transition-colors">
-                  Tài khoản
+                  {userData?.first_name ? `${userData.first_name} ${userData.last_name}` : 'Tài khoản'}
                 </Link>
                 <button 
-                  onClick={() => {
-                    localStorage.removeItem('userToken')
-                    localStorage.removeItem('userData')
-                    setIsLoggedIn(false)
-                    window.location.reload()
-                  }} 
+                  onClick={handleLogout} 
                   className="hover:text-gold transition-colors"
+                  disabled={isLoggingOut}
                 >
-                  Đăng xuất
+                  {isLoggingOut ? 'Đang xử lý...' : 'Đăng xuất'}
                 </button>
               </div>
             ) : (

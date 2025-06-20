@@ -259,4 +259,29 @@ exports.updateProductStock = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server', error: error.message });
   }
+};
+
+/**
+ * Xóa sản phẩm
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ * @returns {Object} - Thông báo kết quả
+ */
+exports.deleteProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    
+    // Tìm và xóa sản phẩm
+    const product = await Product.findByIdAndDelete(productId);
+    
+    if (!product) {
+      return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+    }
+    
+    res.status(200).json({
+      message: 'Xóa sản phẩm thành công'
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server', error: error.message });
+  }
 }; 

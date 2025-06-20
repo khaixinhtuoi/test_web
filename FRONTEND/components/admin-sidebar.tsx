@@ -1,6 +1,6 @@
 "use client"
 
-import { BarChart3, Package, Users, UserCheck, DollarSign, ShoppingCart, Home } from "lucide-react"
+import { BarChart3, Package, Users, UserCheck, DollarSign, ShoppingCart, Home, FolderTree } from "lucide-react"
 import Link from "next/link"
 
 import {
@@ -21,6 +21,11 @@ const menuItems = [
     title: "Dashboard",
     url: "/admin",
     icon: BarChart3,
+  },
+  {
+    title: "Danh mục",
+    url: "/admin/categories",
+    icon: FolderTree,
   },
   {
     title: "Sản phẩm",

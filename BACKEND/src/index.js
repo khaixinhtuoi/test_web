@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Kết nối database
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://truong2004ko:Truong2k4@cluster0daotruongdev.uu48g23.mongodb.net/khaicute?retryWrites=true&w=majority&appName=Cluster0DaoTruongDev')
   .then(() => {
     console.log('Đã kết nối với MongoDB');
     

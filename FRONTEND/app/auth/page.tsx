@@ -14,13 +14,26 @@ import Link from "next/link"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Facebook, Mail, ArrowRight } from "lucide-react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { authAPI, userAPI } from "@/lib/api"
+import { toast } from "sonner"
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  
+  // Login form states
   const [loginEmail, setLoginEmail] = useState("")
   const [loginPassword, setLoginPassword] = useState("")
+  
+  // Register form states
+  const [registerEmail, setRegisterEmail] = useState("")
+  const [registerPassword, setRegisterPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [phone, setPhone] = useState("")
+  
   const [activeTab, setActiveTab] = useState("login")
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -38,42 +51,62 @@ export default function AuthPage() {
     setIsLoading(true)
     
     try {
-      // Giả lập đăng nhập thành công
-      // Trong thực tế, bạn sẽ gọi API đăng nhập và nhận về token
-      setTimeout(() => {
-        // Lưu token vào localStorage
-        localStorage.setItem('userToken', 'sample-token-value')
-        localStorage.setItem('userData', JSON.stringify({
-          id: 1,
-          name: "Nguyễn Văn A",
-          email: loginEmail,
-          isVip: true
-        }))
-        
-        // Chuyển hướng đến trang profile
-        router.push('/profile')
-      }, 1500)
-    } catch (error) {
+      // Gọi API đăng nhập
+      const response = await authAPI.login(loginEmail, loginPassword)
+      
+      // Lưu token và thông tin người dùng vào localStorage
+      localStorage.setItem('accessToken', response.accessToken)
+      localStorage.setItem('userData', JSON.stringify(response.user))
+      
+      toast.success('Đăng nhập thành công!')
+      
+      // Chuyển hướng đến trang profile
+      router.push('/profile')
+    } catch (error: any) {
       console.error('Đăng nhập thất bại', error)
+      toast.error(error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng thử lại.')
+    } finally {
       setIsLoading(false)
     }
   }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Kiểm tra mật khẩu xác nhận
+    if (registerPassword !== confirmPassword) {
+      toast.error('Mật khẩu xác nhận không khớp!')
+      return
+    }
+    
     setIsLoading(true)
     
     try {
-      // Giả lập đăng ký thành công
-      setTimeout(() => {
-        setIsLoading(false)
-        // Hiển thị thông báo thành công và chuyển sang tab đăng nhập
-        alert('Đăng ký thành công! Vui lòng đăng nhập.')
-        // Chuyển về tab đăng nhập
-        setActiveTab("login")
-      }, 1500)
-    } catch (error) {
+      // Gọi API đăng ký
+      await userAPI.register({
+        email: registerEmail,
+        password: registerPassword,
+        first_name: firstName,
+        last_name: lastName,
+        phone: phone || undefined,
+      })
+      
+      toast.success('Đăng ký thành công! Vui lòng đăng nhập.')
+      
+      // Xóa form và chuyển sang tab đăng nhập
+      setRegisterEmail("")
+      setRegisterPassword("")
+      setConfirmPassword("")
+      setFirstName("")
+      setLastName("")
+      setPhone("")
+      
+      // Chuyển về tab đăng nhập
+      setActiveTab("login")
+    } catch (error: any) {
       console.error('Đăng ký thất bại', error)
+      toast.error(error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.')
+    } finally {
       setIsLoading(false)
     }
   }
@@ -209,20 +242,28 @@ export default function AuthPage() {
                         <Label htmlFor="firstName" className="text-text-secondary text-sm font-medium">
                           Họ
                         </Label>
-                        <Input 
-                          id="firstName" 
-                          className="bg-dark-light border-dark-light text-white h-12 focus:border-gold" 
-                          required 
+                        <Input
+                          id="firstName"
+                          type="text"
+                          placeholder="Nguyễn"
+                          className="bg-dark-light border-dark-light text-white h-12 focus:border-gold"
+                          value={firstName}
+                          onChange={(e) => setFirstName(e.target.value)}
+                          required
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="lastName" className="text-text-secondary text-sm font-medium">
                           Tên
                         </Label>
-                        <Input 
-                          id="lastName" 
-                          className="bg-dark-light border-dark-light text-white h-12 focus:border-gold" 
-                          required 
+                        <Input
+                          id="lastName"
+                          type="text"
+                          placeholder="Văn A"
+                          className="bg-dark-light border-dark-light text-white h-12 focus:border-gold"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          required
                         />
                       </div>
                     </div>
@@ -239,6 +280,8 @@ export default function AuthPage() {
                           type="email"
                           placeholder="your@email.com"
                           className="bg-dark-light border-dark-light text-white pl-10 h-12 focus:border-gold"
+                          value={registerEmail}
+                          onChange={(e) => setRegisterEmail(e.target.value)}
                           required
                         />
                       </div>
@@ -247,12 +290,13 @@ export default function AuthPage() {
                       <Label htmlFor="phone" className="text-text-secondary text-sm font-medium">
                         Số điện thoại
                       </Label>
-                      <Input 
-                        id="phone" 
-                        type="tel" 
-                        placeholder="0xxxxxxxxx"
-                        className="bg-dark-light border-dark-light text-white h-12 focus:border-gold" 
-                        required 
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="0912345678"
+                        className="bg-dark-light border-dark-light text-white h-12 focus:border-gold"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">
@@ -263,8 +307,12 @@ export default function AuthPage() {
                         <Input
                           id="registerPassword"
                           type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
                           className="bg-dark-light border-dark-light text-white h-12 focus:border-gold"
+                          value={registerPassword}
+                          onChange={(e) => setRegisterPassword(e.target.value)}
                           required
+                          minLength={6}
                         />
                         <button
                           type="button"
@@ -283,8 +331,12 @@ export default function AuthPage() {
                         <Input
                           id="confirmPassword"
                           type={showConfirmPassword ? "text" : "password"}
+                          placeholder="••••••••"
                           className="bg-dark-light border-dark-light text-white h-12 focus:border-gold"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
                           required
+                          minLength={6}
                         />
                         <button
                           type="button"
@@ -297,15 +349,8 @@ export default function AuthPage() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Checkbox id="terms" className="data-[state=checked]:bg-gold data-[state=checked]:border-gold" required />
-                      <Label htmlFor="terms" className="text-text-secondary text-sm leading-tight">
-                        Tôi đồng ý với{" "}
-                        <Link href="/terms" className="text-gold hover:underline">
-                          Điều khoản sử dụng
-                        </Link>{" "}
-                        và{" "}
-                        <Link href="/privacy" className="text-gold hover:underline">
-                          Chính sách bảo mật
-                        </Link>
+                      <Label htmlFor="terms" className="text-text-secondary text-sm leading-none">
+                        Tôi đồng ý với <Link href="/terms" className="text-gold hover:underline">Điều khoản sử dụng</Link>
                       </Label>
                     </div>
                     <Button
@@ -317,19 +362,6 @@ export default function AuthPage() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </form>
-
-                  <div className="mt-6 text-center">
-                    <p className="text-text-secondary text-sm">
-                      Đã có tài khoản?{" "}
-                      <button 
-                        type="button" 
-                        className="text-gold hover:underline"
-                        onClick={() => setActiveTab("login")}
-                      >
-                        Đăng nhập
-                      </button>
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

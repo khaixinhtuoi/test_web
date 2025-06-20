@@ -38,61 +38,120 @@ import { Switch } from "@/components/ui/switch"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog"
+import { userAPI, authAPI } from "@/lib/api"
+import { toast } from "sonner"
 
 interface UserData {
-  id: number;
-  name: string;
+  _id?: string;
+  first_name: string;
+  last_name: string;
   email: string;
-  isVip: boolean;
+  phone?: string;
+  address?: string;
+  role?: string;
+  is_active?: boolean;
 }
 
 // Dữ liệu người dùng mẫu cho chế độ phát triển
 const sampleUserData: UserData = {
-  id: 1,
-  name: "Nguyễn Văn A",
+  first_name: "Nguyễn",
+  last_name: "Văn A",
   email: "nguyenvana@example.com",
-  isVip: true
+  phone: "0123456789",
+  address: "123 Đường ABC, Quận 1, TP.HCM",
+  role: "customer",
+  is_active: true
 };
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
-  const [userData, setUserData] = useState<UserData>(sampleUserData) // Sử dụng dữ liệu mẫu mặc định
-  const [isTestMode, setIsTestMode] = useState(true) // Luôn ở chế độ kiểm thử
-  const [activeTab, setActiveTab] = useState("profile") // Thêm state để quản lý tab đang hoạt động
+  const [userData, setUserData] = useState<UserData>(sampleUserData)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+  const [activeTab, setActiveTab] = useState("profile")
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const [orderDetailOpen, setOrderDetailOpen] = useState(false)
   const [cancelOrderOpen, setCancelOrderOpen] = useState(false)
+  
+  // Form states
+  const [firstName, setFirstName] = useState(userData.first_name)
+  const [lastName, setLastName] = useState(userData.last_name)
+  const [phone, setPhone] = useState(userData.phone || '')
+  const [address, setAddress] = useState(userData.address || '')
+  
+  // Password change states
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  
   const router = useRouter()
 
   useEffect(() => {
-    // SKIP: Bỏ qua kiểm tra đăng nhập
-    // Chỉ cần tải dữ liệu từ localStorage nếu có
-    const userDataStr = localStorage.getItem('userData')
-    if (userDataStr) {
-      try {
-        const parsedUserData = JSON.parse(userDataStr)
-        setUserData(parsedUserData)
-      } catch (error) {
-        console.error('Lỗi khi phân tích dữ liệu người dùng:', error)
-        // Vẫn giữ dữ liệu mẫu nếu có lỗi
+    // Kiểm tra xem người dùng đã đăng nhập chưa
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      // Nếu chưa đăng nhập, chuyển hướng đến trang đăng nhập
+      router.push('/auth')
+      return
+    }
+    
+    // Lấy thông tin người dùng từ API
+    fetchUserProfile()
+  }, [router])
+  
+  const fetchUserProfile = async () => {
+    try {
+      setIsLoadingProfile(true)
+      
+      // Gọi API để lấy thông tin người dùng
+      const response = await userAPI.getCurrentUser()
+      const userProfile = response.user
+      
+      // Cập nhật state với thông tin người dùng
+      setUserData(userProfile)
+      setFirstName(userProfile.first_name)
+      setLastName(userProfile.last_name)
+      setPhone(userProfile.phone || '')
+      setAddress(userProfile.address || '')
+      
+    } catch (error: any) {
+      console.error('Lỗi khi lấy thông tin người dùng:', error)
+      
+      if (error.response?.status === 401) {
+        // Nếu token hết hạn hoặc không hợp lệ, chuyển hướng đến trang đăng nhập
+        toast.error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')
+        router.push('/auth')
+      } else {
+        toast.error('Không thể lấy thông tin người dùng. Vui lòng thử lại sau.')
       }
+    } finally {
+      setIsLoadingProfile(false)
     }
-  }, [])
+  }
 
-  const handleLogout = () => {
-    if (isTestMode) {
-      alert('Đang ở chế độ kiểm thử. Chức năng đăng xuất hiện không hoạt động.');
-      return;
+  const handleLogout = async () => {
+    try {
+      setIsLoading(true)
+      
+      // Gọi API đăng xuất
+      await authAPI.logout()
+      
+      // Xóa token và thông tin người dùng khỏi localStorage
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('userData')
+      
+      toast.success('Đăng xuất thành công')
+      
+      // Chuyển hướng về trang đăng nhập
+      router.push('/auth')
+    } catch (error) {
+      console.error('Lỗi khi đăng xuất:', error)
+      toast.error('Có lỗi xảy ra khi đăng xuất')
+    } finally {
+      setIsLoading(false)
     }
-    
-    // Xóa token và thông tin người dùng khỏi localStorage
-    localStorage.removeItem('userToken')
-    localStorage.removeItem('userData')
-    
-    // Chuyển hướng về trang đăng nhập
-    router.push('/auth')
   }
 
   const orders = [
@@ -141,10 +200,74 @@ export default function ProfilePage() {
     { text: "Đã thay đổi thông tin tài khoản", time: "1 tuần trước" },
   ]
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsEditing(false)
-    // Thêm logic xử lý cập nhật hồ sơ
+    
+    try {
+      setIsLoading(true)
+      
+      // Gọi API để cập nhật thông tin người dùng
+      const response = await userAPI.updateProfile({
+        first_name: firstName,
+        last_name: lastName,
+        phone,
+        address
+      })
+      
+      // Cập nhật state với thông tin người dùng mới
+      setUserData(response.user)
+      
+      // Cập nhật thông tin trong localStorage
+      const userDataStr = localStorage.getItem('userData')
+      if (userDataStr) {
+        const userData = JSON.parse(userDataStr)
+        userData.first_name = firstName
+        userData.last_name = lastName
+        userData.phone = phone
+        userData.address = address
+        localStorage.setItem('userData', JSON.stringify(userData))
+      }
+      
+      toast.success('Cập nhật thông tin thành công')
+      setIsEditing(false)
+    } catch (error: any) {
+      console.error('Lỗi khi cập nhật thông tin:', error)
+      toast.error(error.response?.data?.message || 'Cập nhật thông tin thất bại')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Kiểm tra mật khẩu xác nhận
+    if (newPassword !== confirmPassword) {
+      toast.error('Mật khẩu xác nhận không khớp')
+      return
+    }
+    
+    try {
+      setIsLoading(true)
+      
+      // Gọi API để thay đổi mật khẩu
+      await userAPI.changePassword({
+        currentPassword,
+        newPassword
+      })
+      
+      toast.success('Đổi mật khẩu thành công')
+      
+      // Xóa form
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (error: any) {
+      console.error('Lỗi khi đổi mật khẩu:', error)
+      toast.error(error.response?.data?.message || 'Đổi mật khẩu thất bại')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const statusColor = (status: string) => {
@@ -176,15 +299,24 @@ export default function ProfilePage() {
     alert(`Thêm sản phẩm từ đơn hàng #${order.id} vào giỏ hàng`);
   }
 
+  // Hiển thị loading state khi đang tải thông tin người dùng
+  if (isLoadingProfile) {
+    return (
+      <div className="min-h-screen bg-black">
+        <Header />
+        <div className="container mx-auto px-4 py-12 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-t-gold border-r-gold border-b-dark-medium border-l-dark-medium rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-white">Đang tải thông tin...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-black">
       <Header />
-
-      {isTestMode && (
-        <div className="bg-amber-500 text-black p-2 text-center text-sm">
-          <strong>CHẾ ĐỘ KIỂM THỬ:</strong> Đang sử dụng dữ liệu mẫu - không yêu cầu đăng nhập trong môi trường phát triển
-        </div>
-      )}
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
@@ -198,7 +330,7 @@ export default function ProfilePage() {
                       <Avatar className="w-28 h-28 border-4 border-gold">
                         <AvatarImage src="/placeholder.svg?height=96&width=96" className="object-cover" />
                         <AvatarFallback className="bg-dark-light text-white text-xl">
-                          {userData.name.split(" ").map(n => n[0]).join("")}
+                          {userData.first_name[0]}{userData.last_name[0]}
                         </AvatarFallback>
                       </Avatar>
                       <Button
@@ -208,10 +340,10 @@ export default function ProfilePage() {
                         <Camera className="h-4 w-4" />
                       </Button>
                     </div>
-                    <h2 className="text-xl font-bold text-white">{userData.name}</h2>
+                    <h2 className="text-xl font-bold text-white">{userData.first_name} {userData.last_name}</h2>
                     <p className="text-text-secondary text-sm">{userData.email}</p>
                     <Badge className="mt-2 bg-gold text-black font-medium">
-                      {userData.isVip ? "VIP Gold" : "Thành viên"}
+                      {userData.role === 'admin' ? "Admin" : "Thành viên"}
                     </Badge>
                   </div>
                 </div>
@@ -256,9 +388,10 @@ export default function ProfilePage() {
                     variant="ghost" 
                     className="w-full justify-start px-4 py-2.5 rounded-lg text-sm text-text-secondary hover:bg-dark-light hover:text-gold"
                     onClick={handleLogout}
+                    disabled={isLoading}
                   >
                     <LogOut className="h-4 w-4 mr-3" />
-                    Đăng xuất
+                    {isLoading ? "Đang xử lý..." : "Đăng xuất"}
                   </Button>
                 </div>
               </Card>
@@ -280,6 +413,7 @@ export default function ProfilePage() {
                           type="button"
                           onClick={() => setIsEditing(!isEditing)}
                           className={isEditing ? "bg-dark-light text-text-secondary border border-dark-light" : "bg-gold hover:bg-gold-hover text-black"}
+                          disabled={isLoading}
                         >
                           {isEditing ? "Hủy" : "Chỉnh sửa"}
                         </Button>
@@ -294,9 +428,10 @@ export default function ProfilePage() {
                             </Label>
                             <Input
                               id="firstName"
-                              defaultValue={userData.name.split(" ")[0]}
+                              value={firstName}
+                              onChange={(e) => setFirstName(e.target.value)}
                               className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
-                              disabled={!isEditing}
+                              disabled={!isEditing || isLoading}
                             />
                           </div>
                           <div className="space-y-2">
@@ -305,9 +440,10 @@ export default function ProfilePage() {
                             </Label>
                             <Input
                               id="lastName"
-                              defaultValue={userData.name.split(" ").slice(1).join(" ")}
+                              value={lastName}
+                              onChange={(e) => setLastName(e.target.value)}
                               className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
-                              disabled={!isEditing}
+                              disabled={!isEditing || isLoading}
                             />
                           </div>
                         </div>
@@ -319,9 +455,9 @@ export default function ProfilePage() {
                           <Input
                             id="email"
                             type="email"
-                            defaultValue={userData.email}
+                            value={userData.email}
                             className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
-                            disabled={!isEditing}
+                            disabled={true} // Email không thể thay đổi
                           />
                         </div>
 
@@ -331,9 +467,10 @@ export default function ProfilePage() {
                           </Label>
                           <Input
                             id="phone"
-                            defaultValue="0123456789"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
                             className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
-                            disabled={!isEditing}
+                            disabled={!isEditing || isLoading}
                           />
                         </div>
 
@@ -343,9 +480,10 @@ export default function ProfilePage() {
                           </Label>
                           <Input
                             id="address"
-                            defaultValue="123 Đường ABC, Quận 1, TP.HCM"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
                             className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
-                            disabled={!isEditing}
+                            disabled={!isEditing || isLoading}
                           />
                         </div>
 
@@ -353,8 +491,9 @@ export default function ProfilePage() {
                           <Button 
                             type="submit" 
                             className="bg-gold hover:bg-gold-hover text-black font-medium"
+                            disabled={isLoading}
                           >
-                            Lưu thay đổi
+                            {isLoading ? "Đang xử lý..." : "Lưu thay đổi"}
                           </Button>
                         )}
                       </form>
@@ -387,6 +526,89 @@ export default function ProfilePage() {
                           </div>
                         ))}
                       </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Settings Tab */}
+                <TabsContent value="settings">
+                  <Card className="bg-dark-medium border-dark-light rounded-xl mb-6">
+                    <CardHeader>
+                      <CardTitle className="text-xl text-white">Đổi mật khẩu</CardTitle>
+                      <CardDescription>Cập nhật mật khẩu tài khoản của bạn</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <form onSubmit={handleChangePassword} className="space-y-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="currentPassword" className="text-text-secondary">
+                            Mật khẩu hiện tại
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              id="currentPassword"
+                              type={showPassword ? "text" : "password"}
+                              value={currentPassword}
+                              onChange={(e) => setCurrentPassword(e.target.value)}
+                              className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
+                              required
+                            />
+                            <button
+                              type="button"
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted hover:text-text-secondary"
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="newPassword" className="text-text-secondary">
+                            Mật khẩu mới
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              id="newPassword"
+                              type={showNewPassword ? "text" : "password"}
+                              value={newPassword}
+                              onChange={(e) => setNewPassword(e.target.value)}
+                              className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
+                              required
+                              minLength={6}
+                            />
+                            <button
+                              type="button"
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted hover:text-text-secondary"
+                              onClick={() => setShowNewPassword(!showNewPassword)}
+                            >
+                              {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="confirmPassword" className="text-text-secondary">
+                            Xác nhận mật khẩu mới
+                          </Label>
+                          <Input
+                            id="confirmPassword"
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
+                            required
+                            minLength={6}
+                          />
+                        </div>
+                        
+                        <Button 
+                          type="submit" 
+                          className="bg-gold hover:bg-gold-hover text-black font-medium"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? "Đang xử lý..." : "Đổi mật khẩu"}
+                        </Button>
+                      </form>
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -505,118 +727,6 @@ export default function ProfilePage() {
                           </div>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                {/* Settings Tab */}
-                <TabsContent value="settings">
-                  <Card className="bg-dark-medium border-dark-light rounded-xl mb-6">
-                    <CardHeader>
-                      <CardTitle className="text-xl text-white">Đổi mật khẩu</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="currentPassword" className="text-text-secondary">
-                            Mật khẩu hiện tại
-                          </Label>
-                          <div className="relative">
-                            <Input
-                              id="currentPassword"
-                              type={showPassword ? "text" : "password"}
-                              className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold pr-10"
-                            />
-                            <button
-                              type="button"
-                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted hover:text-text-secondary"
-                              onClick={() => setShowPassword(!showPassword)}
-                            >
-                              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                            </button>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="newPassword" className="text-text-secondary">
-                            Mật khẩu mới
-                          </Label>
-                          <div className="relative">
-                            <Input 
-                              id="newPassword" 
-                              type={showNewPassword ? "text" : "password"} 
-                              className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold pr-10" 
-                            />
-                            <button
-                              type="button"
-                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted hover:text-text-secondary"
-                              onClick={() => setShowNewPassword(!showNewPassword)}
-                            >
-                              {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                            </button>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="confirmPassword" className="text-text-secondary">
-                            Xác nhận mật khẩu mới
-                          </Label>
-                          <Input
-                            id="confirmPassword"
-                            type="password"
-                            className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
-                          />
-                        </div>
-                        <Button className="bg-gold hover:bg-gold-hover text-black font-medium">Cập nhật mật khẩu</Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-dark-medium border-dark-light rounded-xl mb-6">
-                    <CardHeader>
-                      <CardTitle className="text-xl text-white">Thông báo</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-white">Email thông báo đơn hàng</p>
-                            <p className="text-text-secondary text-sm">Nhận thông báo về trạng thái đơn hàng</p>
-                          </div>
-                          <Switch defaultChecked />
-                        </div>
-                        <Separator className="bg-dark-light" />
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-white">Email khuyến mãi</p>
-                            <p className="text-text-secondary text-sm">Nhận thông báo về khuyến mãi mới</p>
-                          </div>
-                          <Switch defaultChecked />
-                        </div>
-                        <Separator className="bg-dark-light" />
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-white">SMS thông báo</p>
-                            <p className="text-text-secondary text-sm">Nhận thông báo qua tin nhắn điện thoại</p>
-                          </div>
-                          <Switch />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-dark-medium border-dark-light rounded-xl">
-                    <CardHeader>
-                      <CardTitle className="text-xl text-white">Xóa tài khoản</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="p-4 bg-red-950/20 border border-red-500/20 rounded-lg mb-4 flex gap-3 items-center">
-                        <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
-                        <p className="text-text-secondary text-sm">
-                          Việc xóa tài khoản là không thể khôi phục. Tất cả dữ liệu và thông tin của bạn sẽ bị xóa vĩnh viễn.
-                        </p>
-                      </div>
-                      <Button variant="destructive" className="bg-red-600 hover:bg-red-700 text-white">
-                        Xóa tài khoản
-                      </Button>
                     </CardContent>
                   </Card>
                 </TabsContent>
