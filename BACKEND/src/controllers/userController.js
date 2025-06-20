@@ -94,7 +94,7 @@ exports.login = async (req, res) => {
  */
 exports.getCurrentUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user._id).select('-password');
     
     if (!user) {
       return res.status(404).json({ message: 'Không tìm thấy người dùng' });
@@ -118,7 +118,7 @@ exports.updateUser = async (req, res) => {
     
     // Tìm và cập nhật người dùng
     const user = await User.findByIdAndUpdate(
-      req.user.id,
+      req.user._id,
       { first_name, last_name, phone, address },
       { new: true, runValidators: true }
     ).select('-password');
@@ -147,7 +147,7 @@ exports.changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     
     // Tìm người dùng
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'Không tìm thấy người dùng' });
     }

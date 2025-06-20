@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet"
 import { authAPI } from "@/lib/api"
 import { toast } from "sonner"
+import { CartIcon } from "@/components/cart-icon"
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -107,12 +108,29 @@ export function Header() {
           <div className="flex items-center space-x-4 text-text-secondary">
             {isLoggedIn ? (
               <div className="flex items-center space-x-4">
-                <Link href="/profile" className="hover:text-gold transition-colors">
-                  {userData?.first_name ? `${userData.first_name} ${userData.last_name}` : 'Tài khoản'}
+                <Link href="/profile" className="hover:text-gold transition-colors flex items-center space-x-2">
+                  <span>{userData?.first_name ? `${userData.first_name} ${userData.last_name}` : 'Tài khoản'}</span>
+                  {userData?.role === 'admin' && (
+                    <Badge className="bg-yellow-600 text-black text-xs px-2 py-0.5">
+                      Admin
+                    </Badge>
+                  )}
                 </Link>
-                <button 
-                  onClick={handleLogout} 
-                  className="hover:text-gold transition-colors"
+                {/* Hiển thị link Admin chỉ khi user có role admin */}
+                {userData?.role === 'admin' && (
+                  <Link
+                    href="/admin"
+                    className="hover:text-gold transition-colors border-l border-gray-600 pl-4"
+                  >
+                    <span className="flex items-center space-x-1">
+                      <span>👑</span>
+                      <span>Admin</span>
+                    </span>
+                  </Link>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="hover:text-gold transition-colors border-l border-gray-600 pl-4"
                   disabled={isLoggingOut}
                 >
                   {isLoggingOut ? 'Đang xử lý...' : 'Đăng xuất'}
@@ -123,17 +141,14 @@ export function Header() {
                 <Link href="/auth" className="hover:text-gold transition-colors">
                   Đăng nhập
                 </Link>
-                <Link 
-                  href="/auth?tab=register" 
+                <Link
+                  href="/auth?tab=register"
                   className="hover:text-gold transition-colors border-l border-gray-600 pl-4"
                 >
                   Đăng ký
                 </Link>
               </div>
             )}
-            <Link href="/admin" className="hover:text-gold transition-colors">
-              Admin
-            </Link>
           </div>
         </div>
       </div>
@@ -165,6 +180,19 @@ export function Header() {
                           {category}
                         </Link>
                       ))}
+
+                      {/* Admin link trong mobile menu */}
+                      {isLoggedIn && userData?.role === 'admin' && (
+                        <div className="border-t border-gray-600 pt-4 mt-4">
+                          <Link
+                            href="/admin"
+                            className="block py-2.5 px-4 text-yellow-400 hover:text-gold hover:bg-dark-light rounded-md transition-all flex items-center space-x-2"
+                          >
+                            <span>👑</span>
+                            <span>Quản trị Admin</span>
+                          </Link>
+                        </div>
+                      )}
                     </nav>
                   </div>
                 </SheetContent>
@@ -206,12 +234,7 @@ export function Header() {
               <Button variant="ghost" size="icon" className="rounded-full bg-dark-medium text-white hover:text-gold hover:bg-dark-light">
                 <Heart className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="relative rounded-full bg-dark-medium text-white hover:text-gold hover:bg-dark-light" asChild>
-                <Link href="/cart">
-                  <ShoppingCart className="h-5 w-5" />
-                  <Badge className="absolute -top-2 -right-2 bg-gold text-black text-xs rounded-full h-5 w-5 flex items-center justify-center p-0 font-semibold">3</Badge>
-                </Link>
-              </Button>
+              <CartIcon />
               
               {/* Mobile search button */}
               <Button variant="ghost" size="icon" className="md:hidden rounded-full bg-dark-medium text-white hover:text-gold hover:bg-dark-light">

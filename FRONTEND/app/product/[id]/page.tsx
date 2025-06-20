@@ -1,74 +1,88 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Star, Heart, Minus, Plus, Truck, Shield, RotateCcw, CreditCard } from "lucide-react"
+import { Star, Loader2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { usePublicProduct } from "@/hooks/use-public-api"
+import { ProductGallery } from "@/components/product-gallery"
+import { ProductInfo } from "@/components/product-info"
+import { ProductActions } from "@/components/product-actions"
+import { RelatedProducts } from "@/components/related-products"
 
-export default function ProductDetailPage() {
-  const [selectedColor, setSelectedColor] = useState("purple")
-  const [selectedStorage, setSelectedStorage] = useState("256GB")
-  const [quantity, setQuantity] = useState(1)
-  const [isWishlisted, setIsWishlisted] = useState(false)
-  const [mainImage, setMainImage] = useState("/placeholder.svg?height=500&width=500")
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const [productId, setProductId] = useState<string>("")
 
-  const colors = [
-    { id: "purple", name: "Xanh tím", color: "#7B68EE" },
-    { id: "green", name: "Xanh lá mạ", color: "#32CD32" },
-    { id: "pink", name: "Hồng", color: "#FF69B4" },
-    { id: "white", name: "Trắng", color: "#f8fafc" },
-  ]
+  // Resolve params
+  React.useEffect(() => {
+    params.then(resolvedParams => {
+      setProductId(resolvedParams.id)
+    })
+  }, [params])
 
-  const storageOptions = ["128GB", "256GB", "512GB", "1TB"]
+  const { data: productData, isLoading: productLoading, error } = usePublicProduct(productId)
+  const product = productData?.product
 
-  const thumbnails = [
-    "/placeholder.svg?height=100&width=100",
-    "/placeholder.svg?height=100&width=100",
-    "/placeholder.svg?height=100&width=100",
-    "/placeholder.svg?height=100&width=100",
-  ]
+  // Tạo rating giả lập cho reviews
+  const rating = product ? 4.0 + (product.product_name.length % 10) / 10 : 0
+  const reviews = product ? 50 + (product.product_name.length % 100) : 0
 
-  const relatedProducts = [
-    {
-      id: 1,
-      name: "iPhone 16 128GB",
-      price: "26.990.000₫",
-      rating: 4.5,
-      reviews: 98,
-      image: "/placeholder.svg?height=200&width=200",
-    },
-    {
-      id: 2,
-      name: "iPhone 16 Pro 256GB",
-      price: "29.990.000₫",
-      rating: 4.7,
-      reviews: 112,
-      image: "/placeholder.svg?height=200&width=200",
-    },
-    {
-      id: 3,
-      name: "AirPods Pro 2",
-      price: "6.790.000₫",
-      rating: 4.6,
-      reviews: 76,
-      image: "/placeholder.svg?height=200&width=200",
-    },
-    {
-      id: 4,
-      name: "Apple Watch Series 9",
-      price: "10.990.000₫",
-      rating: 4.8,
-      reviews: 64,
-      image: "/placeholder.svg?height=200&width=200",
-    },
-  ]
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("vi-VN").format(price) + "₫"
+  }
 
-  const formatPrice = (price: string) => price
+  // Loading state
+  if (productLoading) {
+    return (
+      <div className="min-h-screen bg-black">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid lg:grid-cols-2 gap-12">
+            <div>
+              <Skeleton className="w-full h-96 bg-gray-700 rounded-lg mb-4" />
+              <div className="flex space-x-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="w-20 h-20 bg-gray-700 rounded-lg" />
+                ))}
+              </div>
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-12 w-3/4 bg-gray-700" />
+              <Skeleton className="h-6 w-1/2 bg-gray-700" />
+              <Skeleton className="h-8 w-1/3 bg-gray-700" />
+              <Skeleton className="h-20 w-full bg-gray-700" />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-black">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold text-white mb-4">Không tìm thấy sản phẩm</h1>
+            <p className="text-gray-400 mb-8">Sản phẩm bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.</p>
+            <Link href="/products">
+              <Button className="bg-gold hover:bg-gold-hover text-black">
+                Quay lại danh sách sản phẩm
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-black">
@@ -81,173 +95,31 @@ export default function ProductDetailPage() {
             Trang chủ
           </Link>
           <span>/</span>
-          <Link href="/category/iphone" className="hover:text-yellow-400">
-            iPhone
-          </Link>
-          <span>/</span>
-          <span className="text-white">iPhone 16</span>
+          {product.category_id && (
+            <>
+              <Link
+                href={`/category/${product.category_id.category_name.toLowerCase()}`}
+                className="hover:text-yellow-400"
+              >
+                {product.category_id.category_name}
+              </Link>
+              <span>/</span>
+            </>
+          )}
+          <span className="text-white">{product.product_name}</span>
         </nav>
 
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           {/* Product Gallery */}
-          <div>
-            <div className="bg-gray-800 rounded-lg p-8 mb-4">
-              <Image
-                src={mainImage || "/placeholder.svg"}
-                alt="iPhone 16"
-                width={500}
-                height={500}
-                className="w-full h-auto object-contain"
-              />
-            </div>
-            <div className="flex space-x-3">
-              {thumbnails.map((thumb, index) => (
-                <button
-                  key={index}
-                  onClick={() => setMainImage(thumb)}
-                  className={`w-20 h-20 bg-gray-800 rounded-lg p-2 border-2 transition-colors ${
-                    mainImage === thumb ? "border-yellow-600" : "border-transparent hover:border-gray-600"
-                  }`}
-                >
-                  <Image
-                    src={thumb || "/placeholder.svg"}
-                    alt={`Thumbnail ${index + 1}`}
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-contain"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
+          <ProductGallery
+            images={[product.image_url || "/placeholder.svg"]}
+            productName={product.product_name}
+          />
 
-          {/* Product Info */}
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-4">iPhone 16</h1>
-
-            <div className="flex items-center space-x-6 mb-6">
-              <div className="flex items-center">
-                <div className="flex text-yellow-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className={`h-5 w-5 ${i < 4 ? "fill-current" : ""}`} />
-                  ))}
-                </div>
-                <span className="text-gray-400 ml-2">(128 đánh giá)</span>
-              </div>
-              <span className="text-gray-400">SKU: IP16-256-TN</span>
-              <Badge className="bg-green-600">Còn hàng</Badge>
-            </div>
-
-            <div className="mb-6">
-              <span className="text-4xl font-bold text-yellow-400">31.990.000₫</span>
-              <span className="text-xl text-gray-400 line-through ml-4">35.990.000₫</span>
-              <Badge className="bg-red-600 ml-2">-11%</Badge>
-            </div>
-
-            <p className="text-gray-300 mb-8 leading-relaxed">
-              iPhone 16 với chip A18 mạnh mẽ, camera chuyên nghiệp 48MP, màn hình Super Retina XDR 6.7 inch và thời
-              lượng pin cả ngày. Thiết kế từ titan hàng không vũ trụ bền bỉ, nhẹ và sang trọng với nhiều cải tiến đột
-              phá.
-            </p>
-
-            {/* Color Selection */}
-            <div className="mb-6">
-              <h3 className="text-white font-semibold mb-3">Màu sắc</h3>
-              <div className="flex space-x-3">
-                {colors.map((color) => (
-                  <button
-                    key={color.id}
-                    onClick={() => setSelectedColor(color.id)}
-                    className={`w-12 h-12 rounded-full border-2 transition-colors ${
-                      selectedColor === color.id ? "border-yellow-600" : "border-gray-600"
-                    }`}
-                    style={{ backgroundColor: color.color }}
-                    title={color.name}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Storage Selection */}
-            <div className="mb-6">
-              <h3 className="text-white font-semibold mb-3">Dung lượng</h3>
-              <div className="flex space-x-3">
-                {storageOptions.map((storage) => (
-                  <button
-                    key={storage}
-                    onClick={() => setSelectedStorage(storage)}
-                    className={`px-4 py-2 rounded-lg border transition-colors ${
-                      selectedStorage === storage
-                        ? "border-yellow-600 bg-yellow-600/10 text-yellow-400"
-                        : "border-gray-600 text-gray-300 hover:border-yellow-600"
-                    }`}
-                  >
-                    {storage}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quantity */}
-            <div className="mb-8">
-              <h3 className="text-white font-semibold mb-3">Số lượng</h3>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center bg-gray-800 rounded-full">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="text-white hover:bg-gray-700"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="px-4 text-white font-medium">{quantity}</span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="text-white hover:bg-gray-700"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-4 mb-8">
-              <Button className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-black font-semibold">
-                Thêm vào giỏ hàng
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`border-gray-600 ${isWishlisted ? "text-red-400 border-red-400" : "text-gray-400"}`}
-              >
-                <Heart className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`} />
-              </Button>
-            </div>
-
-            {/* Features */}
-            <div className="space-y-4">
-              <div className="flex items-center text-gray-300">
-                <Truck className="h-5 w-5 text-yellow-400 mr-3" />
-                <span>Giao hàng miễn phí cho đơn hàng từ 2 triệu đồng</span>
-              </div>
-              <div className="flex items-center text-gray-300">
-                <Shield className="h-5 w-5 text-yellow-400 mr-3" />
-                <span>Bảo hành chính hãng 12 tháng</span>
-              </div>
-              <div className="flex items-center text-gray-300">
-                <RotateCcw className="h-5 w-5 text-yellow-400 mr-3" />
-                <span>Đổi trả trong vòng 15 ngày</span>
-              </div>
-              <div className="flex items-center text-gray-300">
-                <CreditCard className="h-5 w-5 text-yellow-400 mr-3" />
-                <span>Trả góp 0% lãi suất</span>
-              </div>
-            </div>
+          {/* Product Info and Actions */}
+          <div className="space-y-8">
+            <ProductInfo product={product} />
+            <ProductActions product={product} />
           </div>
         </div>
 
@@ -264,33 +136,38 @@ export default function ProductDetailPage() {
               Thông số kỹ thuật
             </TabsTrigger>
             <TabsTrigger value="reviews" className="data-[state=active]:bg-yellow-600 data-[state=active]:text-black">
-              Đánh giá (128)
+              Đánh giá ({reviews})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="description" className="mt-6">
             <Card className="bg-gray-800 border-gray-700">
               <CardContent className="p-6 text-gray-300 space-y-4">
-                <h3 className="text-xl font-semibold text-white">iPhone 16 - Đỉnh cao công nghệ</h3>
-                <p>
-                  iPhone 16 là chiếc iPhone mạnh mẽ nhất, đa năng nhất và tiên tiến nhất từ trước đến nay. Với thiết kế
-                  từ titan hàng không vũ trụ - vật liệu cùng loại được sử dụng trong tàu thăm dò sao Hỏa, iPhone 16 vừa
-                  bền bỉ vừa nhẹ đến bất ngờ.
-                </p>
+                <h3 className="text-xl font-semibold text-white">{product.product_name} - Chi tiết sản phẩm</h3>
+                <div className="prose prose-invert max-w-none">
+                  {product.description ? (
+                    <p className="whitespace-pre-line">{product.description}</p>
+                  ) : (
+                    <div className="space-y-4">
+                      <p>
+                        {product.product_name} là sản phẩm chất lượng cao với thiết kế hiện đại và tính năng vượt trội.
+                      </p>
+                      <p>
+                        Sản phẩm được thiết kế với công nghệ tiên tiến, mang đến trải nghiệm tuyệt vời cho người dùng.
+                      </p>
+                      <p>
+                        Với chất lượng được đảm bảo và dịch vụ hậu mãi tốt, đây là lựa chọn hoàn hảo cho bạn.
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-                <h4 className="text-lg font-semibold text-white">Chip A18 - Hiệu năng đột phá</h4>
-                <p>
-                  A18 là chip mới nhất trong ngành smartphone được chế tạo theo quy trình tiên tiến, mang đến hiệu năng
-                  và hiệu quả năng lượng vượt trội. CPU 8 lõi mới nhanh hơn 20% và GPU 6 lõi mới nhanh hơn tới 30% so
-                  với thế hệ trước.
-                </p>
-
-                <h4 className="text-lg font-semibold text-white">Hệ thống camera chuyên nghiệp</h4>
-                <p>
-                  Camera chính 48MP với khẩu độ f/1.6 cho phép chụp ảnh độ phân giải cao với chi tiết sắc nét. Camera
-                  Ultra Wide 12MP với khẩu độ f/2.2 giúp bạn bắt trọn khung cảnh rộng lớn. Camera Telephoto 12MP với
-                  khẩu độ f/2.8 và zoom quang học 5x cho phép bạn chụp từ xa mà vẫn giữ được chất lượng hình ảnh.
-                </p>
+                {product.brand && (
+                  <div className="mt-6 p-4 bg-gray-700 rounded-lg">
+                    <h4 className="text-lg font-semibold text-white mb-2">Thông tin thương hiệu</h4>
+                    <p>Thương hiệu: <span className="text-yellow-400">{product.brand}</span></p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -298,44 +175,47 @@ export default function ProductDetailPage() {
           <TabsContent value="specs" className="mt-6">
             <Card className="bg-gray-800 border-gray-700">
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div className="space-y-3">
-                    <div className="flex justify-between border-b border-gray-700 pb-2">
-                      <span className="text-gray-400">Màn hình</span>
-                      <span className="text-white">Super Retina XDR OLED 6.7 inch</span>
+                {product.specifications && Object.keys(product.specifications).length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    {Object.entries(product.specifications).map(([key, value]) => (
+                      <div key={key} className="flex justify-between border-b border-gray-700 pb-2">
+                        <span className="text-gray-400 capitalize">{key.replace(/_/g, ' ')}</span>
+                        <span className="text-white">{String(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div className="space-y-3">
+                      <div className="flex justify-between border-b border-gray-700 pb-2">
+                        <span className="text-gray-400">Tên sản phẩm</span>
+                        <span className="text-white">{product.product_name}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-gray-700 pb-2">
+                        <span className="text-gray-400">Thương hiệu</span>
+                        <span className="text-white">{product.brand || "Không có thông tin"}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-gray-700 pb-2">
+                        <span className="text-gray-400">Danh mục</span>
+                        <span className="text-white">{product.category_id?.category_name || "Không có thông tin"}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between border-b border-gray-700 pb-2">
-                      <span className="text-gray-400">Chip</span>
-                      <span className="text-white">A18</span>
-                    </div>
-                    <div className="flex justify-between border-b border-gray-700 pb-2">
-                      <span className="text-gray-400">Dung lượng</span>
-                      <span className="text-white">256GB</span>
-                    </div>
-                    <div className="flex justify-between border-b border-gray-700 pb-2">
-                      <span className="text-gray-400">Camera chính</span>
-                      <span className="text-white">48MP, f/1.6</span>
+                    <div className="space-y-3">
+                      <div className="flex justify-between border-b border-gray-700 pb-2">
+                        <span className="text-gray-400">Giá</span>
+                        <span className="text-white">{formatPrice(product.price)}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-gray-700 pb-2">
+                        <span className="text-gray-400">Tình trạng kho</span>
+                        <span className="text-white">{product.stock_quantity} sản phẩm</span>
+                      </div>
+                      <div className="flex justify-between border-b border-gray-700 pb-2">
+                        <span className="text-gray-400">Trạng thái</span>
+                        <span className="text-white">{product.stock_quantity > 0 ? "Còn hàng" : "Hết hàng"}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between border-b border-gray-700 pb-2">
-                      <span className="text-gray-400">Pin</span>
-                      <span className="text-white">Lên đến 32 giờ xem video</span>
-                    </div>
-                    <div className="flex justify-between border-b border-gray-700 pb-2">
-                      <span className="text-gray-400">Kết nối</span>
-                      <span className="text-white">5G, Wi-Fi 7, Bluetooth 5.4</span>
-                    </div>
-                    <div className="flex justify-between border-b border-gray-700 pb-2">
-                      <span className="text-gray-400">Chống nước</span>
-                      <span className="text-white">IP68</span>
-                    </div>
-                    <div className="flex justify-between border-b border-gray-700 pb-2">
-                      <span className="text-gray-400">Trọng lượng</span>
-                      <span className="text-white">219 gram</span>
-                    </div>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -346,13 +226,13 @@ export default function ProductDetailPage() {
                 {/* Review Summary */}
                 <div className="flex items-center mb-8 p-6 bg-gray-700 rounded-lg">
                   <div className="text-center mr-8">
-                    <div className="text-4xl font-bold text-yellow-400">4.7</div>
+                    <div className="text-4xl font-bold text-yellow-400">{rating.toFixed(1)}</div>
                     <div className="flex text-yellow-400 my-2">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className={`h-4 w-4 ${i < 4 ? "fill-current" : ""}`} />
+                        <Star key={i} className={`h-4 w-4 ${i < Math.floor(rating) ? "fill-current" : ""}`} />
                       ))}
                     </div>
-                    <div className="text-gray-400 text-sm">128 đánh giá</div>
+                    <div className="text-gray-400 text-sm">{reviews} đánh giá</div>
                   </div>
                   <div className="flex-1 space-y-2">
                     {[5, 4, 3, 2, 1].map((rating) => (
@@ -419,36 +299,7 @@ export default function ProductDetailPage() {
         </Tabs>
 
         {/* Related Products */}
-        <div>
-          <h2 className="text-2xl font-bold text-white mb-8">Sản phẩm liên quan</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((product) => (
-              <Link key={product.id} href={`/product/${product.id}`}>
-                <Card className="bg-gray-800 border-gray-700 hover:border-yellow-600 transition-all hover:scale-105 cursor-pointer">
-                  <CardContent className="p-4">
-                    <Image
-                      src={product.image || "/placeholder.svg"}
-                      alt={product.name}
-                      width={200}
-                      height={200}
-                      className="w-full h-48 object-contain bg-gray-700 rounded-lg mb-4"
-                    />
-                    <h3 className="font-semibold text-white mb-2 line-clamp-2">{product.name}</h3>
-                    <div className="flex items-center mb-2">
-                      <div className="flex text-yellow-400">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? "fill-current" : ""}`} />
-                        ))}
-                      </div>
-                      <span className="text-gray-400 text-sm ml-2">({product.reviews})</span>
-                    </div>
-                    <div className="text-yellow-400 font-bold text-lg">{product.price}</div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
+        <RelatedProducts currentProduct={product} />
       </div>
     </div>
   )

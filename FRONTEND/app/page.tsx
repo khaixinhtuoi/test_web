@@ -1,78 +1,32 @@
+"use client"
+
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, Truck, Shield, RotateCcw, CreditCard, ChevronRight, ChevronLeft } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Star, Truck, Shield, RotateCcw, CreditCard, ChevronRight, ChevronLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { usePublicProducts, usePublicCategories } from "@/hooks/use-public-api"
+import { ProductCard } from "@/components/product-card"
 
 export default function HomePage() {
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "iPhone 16 Pro Max",
-      price: "31.990.000₫",
-      originalPrice: "35.990.000₫",
-      discount: "-11%",
-      rating: 4.8,
-      reviews: 128,
-      image: "/placeholder.svg?height=300&width=300",
-      badge: "Mới",
-    },
-    {
-      id: 2,
-      name: "Samsung Galaxy S24 Ultra",
-      price: "29.990.000₫",
-      originalPrice: "32.990.000₫",
-      discount: "-9%",
-      rating: 4.7,
-      reviews: 95,
-      image: "/placeholder.svg?height=300&width=300",
-      badge: "Hot",
-    },
-    {
-      id: 3,
-      name: "MacBook Pro M3",
-      price: "39.990.000₫",
-      originalPrice: "42.990.000₫",
-      discount: "-7%",
-      rating: 4.9,
-      reviews: 67,
-      image: "/placeholder.svg?height=300&width=300",
-      badge: "Bán chạy",
-    },
-    {
-      id: 4,
-      name: "iPad Pro M2",
-      price: "24.990.000₫",
-      originalPrice: "27.990.000₫",
-      discount: "-11%",
-      rating: 4.6,
-      reviews: 89,
-      image: "/placeholder.svg?height=300&width=300",
-      badge: "Giảm giá",
-    },
-    {
-      id: 5,
-      name: "Apple Watch Series 9",
-      price: "10.990.000₫",
-      originalPrice: "12.990.000₫",
-      discount: "-15%",
-      rating: 4.8,
-      reviews: 56,
-      image: "/placeholder.svg?height=300&width=300",
-      badge: "Hot",
-    },
-  ]
+  // Lấy dữ liệu từ API
+  const { data: productsData, isLoading: productsLoading } = usePublicProducts({ limit: 10 })
+  const { data: categoriesData, isLoading: categoriesLoading } = usePublicCategories()
 
-  const categories = [
-    { name: "Điện thoại", icon: "📱", count: "500+" },
-    { name: "Laptop", icon: "💻", count: "200+" },
-    { name: "Tablet", icon: "📱", count: "150+" },
-    { name: "Smartwatch", icon: "⌚", count: "100+" },
-    { name: "Tai nghe", icon: "🎧", count: "300+" },
-    { name: "Phụ kiện", icon: "🔌", count: "800+" },
-  ]
+  const products = productsData?.products || []
+  const categories = categoriesData?.categories || []
+  // Mapping icons cho categories
+  const categoryIcons: Record<string, string> = {
+    "Điện thoại": "📱",
+    "Laptop": "💻",
+    "Tablet": "📱",
+    "Smartwatch": "⌚",
+    "Tai nghe": "🎧",
+    "Phụ kiện": "🔌",
+  }
 
   const promotions = [
     {
@@ -139,23 +93,38 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-white">Danh mục sản phẩm</h2>
-            <Link href="/categories" className="text-gold hover:text-gold-hover font-medium text-sm flex items-center">
+            <Link href="/category" className="text-gold hover:text-gold-hover font-medium text-sm flex items-center">
               Xem tất cả
               <ChevronRight className="h-4 w-4 ml-1" />
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {categories.map((category) => (
-              <Link key={category.name} href={`/category/${category.name.toLowerCase()}`}>
-                <Card className="bg-dark-medium border-dark-light hover:border-gold transition-all cursor-pointer overflow-hidden group rounded-xl">
+            {categoriesLoading ? (
+              // Loading skeleton cho categories
+              Array.from({ length: 6 }).map((_, index) => (
+                <Card key={index} className="bg-dark-medium border-dark-light rounded-xl">
                   <CardContent className="p-6 text-center">
-                    <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{category.icon}</div>
-                    <h3 className="font-semibold text-white mb-1">{category.name}</h3>
-                    <p className="text-text-secondary text-sm">{category.count} sản phẩm</p>
+                    <Skeleton className="h-12 w-12 mx-auto mb-4 bg-gray-700" />
+                    <Skeleton className="h-4 w-20 mx-auto mb-1 bg-gray-700" />
+                    <Skeleton className="h-3 w-16 mx-auto bg-gray-700" />
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              ))
+            ) : (
+              categories.map((category) => (
+                <Link key={category._id} href={`/category/${category.category_name.toLowerCase()}`}>
+                  <Card className="bg-dark-medium border-dark-light hover:border-gold transition-all cursor-pointer overflow-hidden group rounded-xl">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">
+                        {categoryIcons[category.category_name] || "📦"}
+                      </div>
+                      <h3 className="font-semibold text-white mb-1">{category.category_name}</h3>
+                      <p className="text-text-secondary text-sm">Khám phá ngay</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -206,49 +175,35 @@ export default function HomePage() {
             </div>
           </div>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {featuredProducts.map((product) => (
-              <Link key={product.id} href={`/product/${product.id}`}>
-                <Card className="bg-dark-medium border-dark-light hover:border-gold transition-all hover:translate-y-[-8px] cursor-pointer rounded-xl overflow-hidden group">
+            {productsLoading ? (
+              // Loading skeleton cho products
+              Array.from({ length: 5 }).map((_, index) => (
+                <Card key={index} className="bg-dark-medium border-dark-light rounded-xl">
                   <CardContent className="p-4">
                     <div className="relative mb-4 bg-dark-gray rounded-lg p-4">
-                      <Image
-                        src={product.image || "/placeholder.svg"}
-                        alt={product.name}
-                        width={300}
-                        height={300}
-                        className="w-full h-48 object-contain group-hover:scale-105 transition-transform"
-                      />
-                      <Badge className="absolute top-2 left-2 bg-gold text-black font-medium rounded-full px-2.5">{product.badge}</Badge>
-                      {product.discount && (
-                        <Badge className="absolute top-2 right-2 bg-red-600 rounded-full px-2.5">{product.discount}</Badge>
-                      )}
+                      <Skeleton className="w-full h-48 bg-gray-700" />
                     </div>
-                    <h3 className="font-semibold text-white mb-2 line-clamp-2 group-hover:text-gold transition-colors">{product.name}</h3>
+                    <Skeleton className="h-4 w-full mb-2 bg-gray-700" />
+                    <Skeleton className="h-4 w-3/4 mb-2 bg-gray-700" />
                     <div className="flex items-center mb-2">
-                      <div className="flex text-gold">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? "fill-current" : ""}`} />
-                        ))}
-                      </div>
-                      <span className="text-text-secondary text-sm ml-2">({product.reviews})</span>
+                      <Skeleton className="h-4 w-20 bg-gray-700" />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-gold font-bold text-lg">{product.price}</span>
-                        {product.originalPrice && (
-                          <span className="text-text-secondary text-sm line-through ml-2">{product.originalPrice}</span>
-                        )}
-                      </div>
-                    </div>
+                    <Skeleton className="h-6 w-24 bg-gray-700" />
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              ))
+            ) : (
+              products.slice(0, 5).map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))
+            )}
           </div>
           <div className="mt-10 text-center">
-            <Button className="bg-gold hover:bg-gold-hover text-black font-medium rounded-full">
-              Xem tất cả sản phẩm
-            </Button>
+            <Link href="/products">
+              <Button className="bg-gold hover:bg-gold-hover text-black font-medium rounded-full">
+                Xem tất cả sản phẩm
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

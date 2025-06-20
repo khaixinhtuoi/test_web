@@ -8,7 +8,7 @@ const { CartItem, Product } = require('../models');
  */
 exports.getCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     
     // Lấy danh sách sản phẩm trong giỏ hàng và populate thông tin sản phẩm
     const cartItems = await CartItem.find({ user_id: userId })
@@ -29,9 +29,16 @@ exports.getCart = async (req, res) => {
       totalAmount += item.product_id.price * item.quantity;
     });
     
+    // Tính tổng số lượng sản phẩm
+    let totalItems = 0;
+    validCartItems.forEach(item => {
+      totalItems += item.quantity;
+    });
+
     res.status(200).json({
       cartItems: validCartItems,
       totalAmount,
+      totalItems,
       itemCount: validCartItems.length
     });
   } catch (error) {
@@ -47,7 +54,7 @@ exports.getCart = async (req, res) => {
  */
 exports.addToCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { product_id, quantity = 1 } = req.body;
     
     // Kiểm tra sản phẩm tồn tại và còn hàng
@@ -122,7 +129,7 @@ exports.addToCart = async (req, res) => {
  */
 exports.updateCartItem = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { cartItemId } = req.params;
     const { quantity } = req.body;
     
@@ -181,7 +188,7 @@ exports.updateCartItem = async (req, res) => {
  */
 exports.removeFromCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { cartItemId } = req.params;
     
     // Tìm và xóa sản phẩm trong giỏ hàng
@@ -208,7 +215,7 @@ exports.removeFromCart = async (req, res) => {
  */
 exports.clearCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     
     // Xóa tất cả sản phẩm trong giỏ hàng của người dùng
     await CartItem.deleteMany({ user_id: userId });

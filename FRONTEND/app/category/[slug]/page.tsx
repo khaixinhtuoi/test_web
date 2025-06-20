@@ -1,123 +1,84 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Star, Filter, Grid, List } from "lucide-react"
+import { Star, Filter, Grid, List, Loader2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { usePublicProducts, usePublicCategories } from "@/hooks/use-public-api"
+import { ProductCard } from "@/components/product-card"
+import { type Product } from "@/lib/api"
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
+export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [priceRange, setPriceRange] = useState([0, 50000000])
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState("popular")
+  const [currentCategory, setCurrentCategory] = useState<string>("")
+  const [slug, setSlug] = useState<string>("")
 
-  const categoryName = params.slug.charAt(0).toUpperCase() + params.slug.slice(1)
+  // Resolve params
+  React.useEffect(() => {
+    params.then(resolvedParams => {
+      setSlug(resolvedParams.slug)
+    })
+  }, [params])
 
-  const products = [
-    {
-      id: 1,
-      name: "iPhone 16 Pro Max 256GB",
-      price: 31990000,
-      originalPrice: 35990000,
-      discount: 11,
-      rating: 4.8,
-      reviews: 128,
-      image: "/placeholder.svg?height=300&width=300",
-      brand: "Apple",
-      inStock: true,
-      isNew: true,
-    },
-    {
-      id: 2,
-      name: "Samsung Galaxy S24 Ultra",
-      price: 29990000,
-      originalPrice: 32990000,
-      discount: 9,
-      rating: 4.7,
-      reviews: 95,
-      image: "/placeholder.svg?height=300&width=300",
-      brand: "Samsung",
-      inStock: true,
-      isHot: true,
-    },
-    {
-      id: 3,
-      name: "Xiaomi 14 Ultra",
-      price: 24990000,
-      originalPrice: 27990000,
-      discount: 11,
-      rating: 4.6,
-      reviews: 67,
-      image: "/placeholder.svg?height=300&width=300",
-      brand: "Xiaomi",
-      inStock: true,
-      isBestSeller: true,
-    },
-    {
-      id: 4,
-      name: "OPPO Find X7 Pro",
-      price: 22990000,
-      originalPrice: 25990000,
-      discount: 12,
-      rating: 4.5,
-      reviews: 89,
-      image: "/placeholder.svg?height=300&width=300",
-      brand: "OPPO",
-      inStock: false,
-      isNew: false,
-    },
-    {
-      id: 5,
-      name: "Vivo X100 Pro",
-      price: 21990000,
-      originalPrice: 24990000,
-      discount: 12,
-      rating: 4.4,
-      reviews: 56,
-      image: "/placeholder.svg?height=300&width=300",
-      brand: "Vivo",
-      inStock: true,
-      isNew: false,
-    },
-    {
-      id: 6,
-      name: "iPhone 15 Pro",
-      price: 27990000,
-      originalPrice: 30990000,
-      discount: 10,
-      rating: 4.7,
-      reviews: 234,
-      image: "/placeholder.svg?height=300&width=300",
-      brand: "Apple",
-      inStock: true,
-      isNew: false,
-    },
-  ]
+  const categoryName = slug ? slug.charAt(0).toUpperCase() + slug.slice(1) : ""
 
-  const brands = ["Apple", "Samsung", "Xiaomi", "OPPO", "Vivo"]
+  // Lấy dữ liệu từ API
+  const { data: categoriesData } = usePublicCategories()
+  const { data: productsData, isLoading: productsLoading } = usePublicProducts({
+    category: currentCategory,
+    min_price: priceRange[0],
+    max_price: priceRange[1],
+    brands: selectedBrands.length > 0 ? selectedBrands : undefined,
+    sort: sortBy as 'price_asc' | 'price_desc' | 'newest',
+    limit: 20, // Tăng số lượng sản phẩm hiển thị
+  })
+
+  // Lấy tất cả products để có danh sách brands (không filter)
+  const { data: allProductsData } = usePublicProducts({
+    category: currentCategory,
+    limit: 1000, // Lấy nhiều để có đủ brands
+  })
+
+  const products = productsData?.products || []
+  const categories = categoriesData?.categories || []
+  const allProducts = allProductsData?.products || []
+
+  // Tìm category ID từ slug
+  useEffect(() => {
+    if (slug && categories.length > 0) {
+      const category = categories.find(cat =>
+        cat.category_name.toLowerCase() === slug.toLowerCase()
+      )
+      if (category) {
+        setCurrentCategory(category._id)
+      }
+    }
+  }, [categories, slug])
+
+  // Lấy danh sách brands từ tất cả products trong category
+  const brands = Array.from(new Set(allProducts.map(p => p.brand).filter(Boolean)))
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(price)
+    return new Intl.NumberFormat("vi-VN").format(price) + "₫"
   }
 
   const toggleBrand = (brand: string) => {
     setSelectedBrands((prev) => (prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]))
   }
 
-  const filteredProducts = products.filter((product) => {
-    const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(product.brand)
-    const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
-    return matchesBrand && matchesPrice
-  })
+  // Sử dụng products từ API (đã được filter server-side)
+  const filteredProducts = products
 
   return (
     <div className="min-h-screen bg-black">
@@ -163,18 +124,22 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                 <div className="mb-6">
                   <h3 className="font-medium text-white mb-4">Thương hiệu</h3>
                   <div className="space-y-3">
-                    {brands.map((brand) => (
-                      <div key={brand} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={brand}
-                          checked={selectedBrands.includes(brand)}
-                          onCheckedChange={() => toggleBrand(brand)}
-                        />
-                        <label htmlFor={brand} className="text-gray-300 text-sm cursor-pointer">
-                          {brand}
-                        </label>
-                      </div>
-                    ))}
+                    {brands.length > 0 ? (
+                      brands.map((brand) => (
+                        <div key={brand} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={brand}
+                            checked={selectedBrands.includes(brand)}
+                            onCheckedChange={() => toggleBrand(brand)}
+                          />
+                          <label htmlFor={brand} className="text-gray-300 text-sm cursor-pointer">
+                            {brand}
+                          </label>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-400 text-sm">Đang tải...</p>
+                    )}
                   </div>
                 </div>
 
@@ -204,14 +169,14 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
 
               <div className="flex items-center space-x-4 mt-4 sm:mt-0">
                 {/* Sort */}
-                <Select defaultValue="popular">
+                <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger className="w-48 bg-gray-800 border-gray-700 text-white">
                     <SelectValue placeholder="Sắp xếp theo" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-700">
                     <SelectItem value="popular">Phổ biến nhất</SelectItem>
-                    <SelectItem value="price-low">Giá thấp đến cao</SelectItem>
-                    <SelectItem value="price-high">Giá cao đến thấp</SelectItem>
+                    <SelectItem value="price-asc">Giá thấp đến cao</SelectItem>
+                    <SelectItem value="price-desc">Giá cao đến thấp</SelectItem>
                     <SelectItem value="newest">Mới nhất</SelectItem>
                     <SelectItem value="rating">Đánh giá cao nhất</SelectItem>
                   </SelectContent>
@@ -240,74 +205,85 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             </div>
 
             {/* Products Grid/List */}
-            <div className={viewMode === "grid" ? "grid md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
-              {filteredProducts.map((product) => (
-                <Link key={product.id} href={`/product/${product.id}`}>
-                  <Card
-                    className={`bg-gray-800 border-gray-700 hover:border-yellow-600 transition-all hover:scale-105 cursor-pointer ${
-                      viewMode === "list" ? "flex" : ""
-                    }`}
-                  >
-                    <CardContent className={`p-4 ${viewMode === "list" ? "flex items-center space-x-6" : ""}`}>
-                      <div className={`relative ${viewMode === "list" ? "w-32 h-32 flex-shrink-0" : "mb-4"}`}>
-                        <Image
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.name}
-                          width={viewMode === "list" ? 128 : 300}
-                          height={viewMode === "list" ? 128 : 200}
-                          className={`object-contain bg-gray-700 rounded-lg ${
-                            viewMode === "list" ? "w-full h-full" : "w-full h-48"
-                          }`}
-                        />
-
-                        {/* Badges */}
-                        <div className="absolute top-2 left-2 space-y-1">
-                          {product.isNew && <Badge className="bg-green-600 text-white text-xs">Mới</Badge>}
-                          {product.isHot && <Badge className="bg-red-600 text-white text-xs">Hot</Badge>}
-                          {product.isBestSeller && <Badge className="bg-purple-600 text-white text-xs">Bán chạy</Badge>}
-                        </div>
-
-                        {product.discount > 0 && (
-                          <Badge className="absolute top-2 right-2 bg-red-600 text-white text-xs">
-                            -{product.discount}%
-                          </Badge>
-                        )}
-                      </div>
-
-                      <div className={viewMode === "list" ? "flex-1" : ""}>
-                        <h3 className="font-semibold text-white mb-2 line-clamp-2">{product.name}</h3>
-
-                        <div className="flex items-center mb-2">
-                          <div className="flex text-yellow-400">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-4 w-4 ${i < Math.floor(product.rating) ? "fill-current" : ""}`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-gray-400 text-sm ml-2">({product.reviews})</span>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="text-yellow-400 font-bold text-lg">{formatPrice(product.price)}</span>
-                            {product.originalPrice && (
-                              <span className="text-gray-400 text-sm line-through ml-2">
-                                {formatPrice(product.originalPrice)}
-                              </span>
-                            )}
-                          </div>
-                          <Badge className={product.inStock ? "bg-green-600" : "bg-red-600"}>
-                            {product.inStock ? "Còn hàng" : "Hết hàng"}
-                          </Badge>
-                        </div>
-                      </div>
+            {productsLoading ? (
+              <div className={viewMode === "grid" ? "grid md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <Card key={index} className="bg-gray-800 border-gray-700">
+                    <CardContent className="p-4">
+                      <Skeleton className="w-full h-48 mb-4 bg-gray-700" />
+                      <Skeleton className="h-4 w-full mb-2 bg-gray-700" />
+                      <Skeleton className="h-4 w-3/4 mb-2 bg-gray-700" />
+                      <Skeleton className="h-4 w-20 mb-2 bg-gray-700" />
+                      <Skeleton className="h-6 w-24 bg-gray-700" />
                     </CardContent>
                   </Card>
-                </Link>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <div className={viewMode === "grid" ? "grid md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
+                {viewMode === "grid" ? (
+                  filteredProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  // List view - sử dụng layout tùy chỉnh
+                  filteredProducts.map((product) => (
+                    <Link key={product._id} href={`/product/${product._id}`}>
+                      <Card className="bg-gray-800 border-gray-700 hover:border-yellow-600 transition-all cursor-pointer flex">
+                        <CardContent className="p-4 flex items-center space-x-6">
+                          <div className="w-32 h-32 flex-shrink-0 relative">
+                            <Image
+                              src={product.image_url || "/placeholder.svg"}
+                              alt={product.product_name}
+                              width={128}
+                              height={128}
+                              className="object-contain bg-gray-700 rounded-lg w-full h-full"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement
+                                target.src = "/placeholder.svg?height=128&width=128"
+                              }}
+                            />
+                          </div>
+
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-white mb-2 line-clamp-2">{product.product_name}</h3>
+
+                            <div className="flex items-center mb-2">
+                              <div className="flex text-yellow-400">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star key={i} className={`h-4 w-4 ${i < 4 ? "fill-current" : ""}`} />
+                                ))}
+                              </div>
+                              <span className="text-gray-400 text-sm ml-2">(50+)</span>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <span className="text-yellow-400 font-bold text-lg">{formatPrice(product.price)}</span>
+                              </div>
+                              <Badge className={product.stock_quantity > 0 ? "bg-green-600" : "bg-red-600"}>
+                                {product.stock_quantity > 0 ? "Còn hàng" : "Hết hàng"}
+                              </Badge>
+                            </div>
+
+                            {product.brand && (
+                              <div className="mt-2">
+                                <span className="text-gray-400 text-xs">Thương hiệu: {product.brand}</span>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-400 text-lg">Không tìm thấy sản phẩm nào</p>
+                <p className="text-gray-500 text-sm mt-2">Thử thay đổi bộ lọc hoặc tìm kiếm khác</p>
+              </div>
+            )}
 
             {/* Pagination */}
             <div className="flex justify-center mt-12">

@@ -5,6 +5,7 @@ const productRoutes = require('./productRoutes');
 const cartRoutes = require('./cartRoutes');
 const orderRoutes = require('./orderRoutes');
 const authRoutes = require('./authRoutes');
+const uploadRoutes = require('./uploadRoutes');
 
 const router = express.Router();
 
@@ -15,5 +16,7 @@ router.use('/api/categories', categoryRoutes);
 router.use('/api/products', productRoutes);
 router.use('/api/cart', cartRoutes);
 router.use('/api/orders', orderRoutes);
+router.use('/api/admin/orders', orderRoutes);
+router.use('/api/upload', uploadRoutes);
 
 module.exports = router; 

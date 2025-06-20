@@ -8,6 +8,10 @@ const { Product, Category } = require('../models');
  */
 exports.getAllProducts = async (req, res) => {
   try {
+    console.log('=== GET ALL PRODUCTS REQUEST ===');
+    console.log('Query params:', req.query);
+    console.log('Headers:', req.headers);
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
@@ -31,6 +35,12 @@ exports.getAllProducts = async (req, res) => {
     // Tìm kiếm theo tên sản phẩm nếu có
     if (req.query.search) {
       filter.product_name = { $regex: req.query.search, $options: 'i' };
+    }
+
+    // Lọc theo thương hiệu nếu có
+    if (req.query.brands) {
+      const brands = Array.isArray(req.query.brands) ? req.query.brands : [req.query.brands];
+      filter.brand = { $in: brands };
     }
     
     // Sắp xếp

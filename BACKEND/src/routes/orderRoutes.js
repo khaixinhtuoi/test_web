@@ -15,7 +15,9 @@ router.put('/my-orders/:orderId/cancel', orderController.cancelOrder);
 
 // Routes chỉ dành cho admin
 router.use(authMiddleware.admin);
+router.get('/dashboard/stats', orderController.getDashboardStats);
 router.get('/', orderController.getAllOrders);
+router.get('/:orderId', orderController.getAdminOrderDetails);
 router.put('/:orderId/status', orderController.updateOrderStatus);
 
 module.exports = router; 

@@ -48,7 +48,7 @@ const orderSchema = new mongoose.Schema({
   },
   payment_method: {
     type: String,
-    enum: ['COD', 'Bank Transfer'],
+    enum: ['cod', 'bank', 'momo', 'COD', 'Bank Transfer'],
     required: true
   },
   notes: {
@@ -64,15 +64,21 @@ const orderSchema = new mongoose.Schema({
 
 // Tạo order_number trước khi lưu
 orderSchema.pre('save', async function(next) {
-  if (this.isNew) {
-    const count = await mongoose.model('Order').countDocuments();
-    const date = new Date();
-    const year = date.getFullYear().toString().substr(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    this.order_number = `ORD-${year}${month}${day}-${(count + 1).toString().padStart(4, '0')}`;
+  try {
+    if (this.isNew && !this.order_number) {
+      const count = await mongoose.model('Order').countDocuments();
+      const date = new Date();
+      const year = date.getFullYear().toString().slice(-2);
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      this.order_number = `ORD-${year}${month}${day}-${(count + 1).toString().padStart(4, '0')}`;
+      console.log('Generated order_number:', this.order_number);
+    }
+    next();
+  } catch (error) {
+    console.error('Error generating order_number:', error);
+    next(error);
   }
-  next();
 });
 
 const Order = mongoose.model('Order', orderSchema);

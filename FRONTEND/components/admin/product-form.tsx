@@ -15,6 +15,7 @@ import {
 import { Loader2 } from "lucide-react"
 import { productSchema, type ProductFormData } from "@/lib/validations/product"
 import { type Category } from "@/lib/api"
+import { ImageUpload } from "./image-upload"
 
 interface ProductFormProps {
   categories: Category[]
@@ -54,6 +55,7 @@ export function ProductForm({
   })
 
   const categoryId = watch("category_id")
+  const imageUrl = watch("image_url")
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 py-4">
@@ -140,12 +142,11 @@ export function ProductForm({
         </div>
 
         <div className="col-span-2">
-          <Label htmlFor="image_url" className="text-gray-300">URL hình ảnh</Label>
-          <Input
-            id="image_url"
-            placeholder="Nhập URL hình ảnh sản phẩm"
-            className="bg-gray-700 border-gray-600 text-white mt-1"
-            {...register("image_url")}
+          <ImageUpload
+            value={imageUrl}
+            onChange={(url) => setValue("image_url", url)}
+            disabled={isLoading}
+            label="Hình ảnh sản phẩm"
           />
           {errors.image_url && (
             <p className="text-red-500 text-sm mt-1">{errors.image_url.message}</p>

@@ -30,7 +30,12 @@ export default function RootLayout({
     <html lang="vi" className={inter.variable}>
       <body className="min-h-screen bg-background font-sans antialiased">
         <QueryProvider>
-          <ThemeProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem={false}
+            disableTransitionOnChange
+          >
             {children}
             <Toaster />
           </ThemeProvider>
