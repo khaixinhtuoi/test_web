@@ -382,9 +382,15 @@ exports.getDashboardStats = async (req, res) => {
     const totalUsers = await User.countDocuments();
     const totalProducts = await Product.countDocuments();
 
-    // Tính tổng doanh thu
+    // Tính tổng doanh thu (chỉ từ đơn hàng đã thanh toán)
+    // Điều kiện: order_status != 'cancelled' AND payment_status = 'paid'
     const revenueResult = await Order.aggregate([
-      { $match: { order_status: { $ne: 'cancelled' } } },
+      {
+        $match: {
+          order_status: { $ne: 'cancelled' },
+          payment_status: 'paid' // Chỉ tính đơn hàng đã thanh toán
+        }
+      },
       { $group: { _id: null, totalRevenue: { $sum: '$total_amount' } } }
     ]);
     const totalRevenue = revenueResult.length > 0 ? revenueResult[0].totalRevenue : 0;
@@ -402,7 +408,8 @@ exports.getDashboardStats = async (req, res) => {
       {
         $match: {
           created_at: { $gte: sixMonthsAgo },
-          order_status: { $ne: 'cancelled' }
+          order_status: { $ne: 'cancelled' },
+          payment_status: 'paid'
         }
       },
       {
@@ -436,7 +443,8 @@ exports.getDashboardStats = async (req, res) => {
             $gte: new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1),
             $lt: new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1)
           },
-          order_status: { $ne: 'cancelled' }
+          order_status: { $ne: 'cancelled' },
+          payment_status: 'paid'
         }
       },
       { $group: { _id: null, revenue: { $sum: '$total_amount' }, orders: { $sum: 1 } } }
@@ -449,7 +457,8 @@ exports.getDashboardStats = async (req, res) => {
             $gte: new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1),
             $lt: new Date(lastMonth.getFullYear(), lastMonth.getMonth() + 1, 1)
           },
-          order_status: { $ne: 'cancelled' }
+          order_status: { $ne: 'cancelled' },
+          payment_status: 'paid'
         }
       },
       { $group: { _id: null, revenue: { $sum: '$total_amount' }, orders: { $sum: 1 } } }

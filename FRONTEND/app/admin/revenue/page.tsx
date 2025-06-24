@@ -1,6 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { adminOrderAPI } from "@/lib/api"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -86,8 +89,23 @@ const categoryData = [
 ]
 
 export default function RevenuePage() {
-  const [yearFilter, setYearFilter] = useState("2023")
-  
+  const [yearFilter, setYearFilter] = useState("2024")
+
+  // Fetch dashboard stats
+  const { data: dashboardData, isLoading, error } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: adminOrderAPI.getDashboardStats,
+    retry: 1,
+    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+  })
+
+  // Handle error
+  useEffect(() => {
+    if (error) {
+      toast.error("Không thể tải dữ liệu doanh thu")
+    }
+  }, [error])
+
   // Định dạng số tiền
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -95,15 +113,49 @@ export default function RevenuePage() {
       currency: "VND",
     }).format(price)
   }
-  
-  // Tính tổng doanh thu
-  const totalRevenue = revenueData.reduce((sum, item) => sum + item.doanhthu, 0)
-  
-  // Tính tổng đơn hàng
-  const totalOrders = revenueData.reduce((sum, item) => sum + item.donhang, 0)
-  
+
+  // Format number function
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat("vi-VN").format(num)
+  }
+
+  // Prepare chart data from API
+  const chartData = dashboardData?.monthlyRevenue?.map(item => ({
+    month: `T${item._id.month}`,
+    doanhthu: item.revenue,
+    donhang: item.orders
+  })) || []
+
+  // Calculate totals from API data
+  const totalRevenue = dashboardData?.totalStats?.totalRevenue || 0
+  const totalOrders = dashboardData?.totalStats?.totalOrders || 0
+  const totalProducts = dashboardData?.totalStats?.totalProducts || 0
+  const totalUsers = dashboardData?.totalStats?.totalUsers || 0
+
   // Tính doanh thu trung bình mỗi đơn hàng
-  const averageOrderValue = totalRevenue / totalOrders
+  const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-white">Đang tải dữ liệu doanh thu...</div>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-red-500">Không thể tải dữ liệu doanh thu</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6">
@@ -111,6 +163,7 @@ export default function RevenuePage() {
         <div className="flex items-center">
           <TrendingUp className="h-6 w-6 mr-2 text-green-500" />
           <h1 className="text-3xl font-bold">Thống kê doanh thu</h1>
+          <span className="ml-3 text-sm text-gray-400">(Chỉ tính đơn hàng đã thanh toán)</span>
         </div>
         <div className="flex gap-2">
           <Select value={yearFilter} onValueChange={setYearFilter}>
@@ -118,9 +171,9 @@ export default function RevenuePage() {
               <SelectValue placeholder="Chọn năm" />
             </SelectTrigger>
             <SelectContent className="bg-gray-800 border-gray-700 text-white">
-              <SelectItem value="2021">Năm 2021</SelectItem>
               <SelectItem value="2022">Năm 2022</SelectItem>
               <SelectItem value="2023">Năm 2023</SelectItem>
+              <SelectItem value="2024">Năm 2024</SelectItem>
             </SelectContent>
           </Select>
           <Button className="bg-green-600 hover:bg-green-700">
@@ -131,7 +184,7 @@ export default function RevenuePage() {
       </div>
       
       {/* Thẻ tổng quan */}
-      <div className="grid gap-4 md:grid-cols-3 mb-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
         <Card className="bg-gray-800 border-gray-700">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-white text-lg font-medium">Tổng doanh thu</CardTitle>
@@ -141,7 +194,7 @@ export default function RevenuePage() {
             <div className="text-2xl font-bold text-white">{formatPrice(totalRevenue)}</div>
             <div className="flex items-center pt-1 text-sm text-green-500">
               <ArrowUpRight className="mr-1 h-4 w-4" />
-              <span>12.5% so với năm trước</span>
+              <span>{dashboardData?.totalStats?.revenueChange || "+0%"} so với tháng trước</span>
             </div>
           </CardContent>
         </Card>
@@ -151,10 +204,10 @@ export default function RevenuePage() {
             <ShoppingBag className="h-5 w-5 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{totalOrders}</div>
+            <div className="text-2xl font-bold text-white">{formatNumber(totalOrders)}</div>
             <div className="flex items-center pt-1 text-sm text-blue-500">
               <ArrowUpRight className="mr-1 h-4 w-4" />
-              <span>8.2% so với năm trước</span>
+              <span>{dashboardData?.totalStats?.ordersChange || "+0%"} so với tháng trước</span>
             </div>
           </CardContent>
         </Card>
@@ -167,7 +220,33 @@ export default function RevenuePage() {
             <div className="text-2xl font-bold text-white">{formatPrice(averageOrderValue)}</div>
             <div className="flex items-center pt-1 text-sm text-purple-500">
               <ArrowUpRight className="mr-1 h-4 w-4" />
-              <span>3.7% so với năm trước</span>
+              <span>Giá trị trung bình mỗi đơn hàng</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-white text-lg font-medium">Tổng sản phẩm</CardTitle>
+            <ShoppingBag className="h-5 w-5 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{formatNumber(totalProducts)}</div>
+            <div className="flex items-center pt-1 text-sm text-orange-500">
+              <ArrowUpRight className="mr-1 h-4 w-4" />
+              <span>Sản phẩm trong hệ thống</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-white text-lg font-medium">Tổng khách hàng</CardTitle>
+            <Users className="h-5 w-5 text-yellow-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{formatNumber(totalUsers)}</div>
+            <div className="flex items-center pt-1 text-sm text-yellow-500">
+              <ArrowUpRight className="mr-1 h-4 w-4" />
+              <span>Khách hàng đã đăng ký</span>
             </div>
           </CardContent>
         </Card>
@@ -190,7 +269,7 @@ export default function RevenuePage() {
               
               <TabsContent value="line" className="mt-4">
                 <ResponsiveContainer width="100%" height={350}>
-                  <LineChart data={revenueData}>
+                  <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis dataKey="month" stroke="#9CA3AF" />
                     <YAxis 
@@ -215,7 +294,7 @@ export default function RevenuePage() {
               
               <TabsContent value="bar" className="mt-4">
                 <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={revenueData}>
+                  <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                     <XAxis dataKey="month" stroke="#9CA3AF" />
                     <YAxis 

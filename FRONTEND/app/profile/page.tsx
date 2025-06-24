@@ -49,6 +49,7 @@ interface UserData {
   email: string;
   phone?: string;
   address?: string;
+  date_of_birth?: string;
   role?: string;
   is_active?: boolean;
 }
@@ -60,6 +61,7 @@ const sampleUserData: UserData = {
   email: "nguyenvana@example.com",
   phone: "0123456789",
   address: "123 Đường ABC, Quận 1, TP.HCM",
+  date_of_birth: "1990-01-15",
   role: "customer",
   is_active: true
 };
@@ -104,6 +106,7 @@ export default function ProfilePage() {
   const [lastName, setLastName] = useState(userData.last_name)
   const [phone, setPhone] = useState(userData.phone || '')
   const [address, setAddress] = useState(userData.address || '')
+  const [dateOfBirth, setDateOfBirth] = useState(userData.date_of_birth || '')
   
   // Password change states
   const [currentPassword, setCurrentPassword] = useState('')
@@ -139,6 +142,7 @@ export default function ProfilePage() {
       setLastName(userProfile.last_name)
       setPhone(userProfile.phone || '')
       setAddress(userProfile.address || '')
+      setDateOfBirth(userProfile.date_of_birth ? userProfile.date_of_birth.split('T')[0] : '')
       
     } catch (error: any) {
       console.error('Lỗi khi lấy thông tin người dùng:', error)
@@ -251,7 +255,8 @@ export default function ProfilePage() {
         first_name: firstName,
         last_name: lastName,
         phone,
-        address
+        address,
+        date_of_birth: dateOfBirth || undefined
       })
       
       // Cập nhật state với thông tin người dùng mới
@@ -265,6 +270,7 @@ export default function ProfilePage() {
         userData.last_name = lastName
         userData.phone = phone
         userData.address = address
+        userData.date_of_birth = dateOfBirth
         localStorage.setItem('userData', JSON.stringify(userData))
       }
       
@@ -530,6 +536,20 @@ export default function ProfilePage() {
                             id="address"
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
+                            className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
+                            disabled={!isEditing || isLoading}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="dateOfBirth" className="text-text-secondary">
+                            Ngày sinh
+                          </Label>
+                          <Input
+                            id="dateOfBirth"
+                            type="date"
+                            value={dateOfBirth}
+                            onChange={(e) => setDateOfBirth(e.target.value)}
                             className="bg-dark-light border-dark-light text-white h-12 focus:border-gold focus:ring-gold"
                             disabled={!isEditing || isLoading}
                           />

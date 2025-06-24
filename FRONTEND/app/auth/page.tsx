@@ -33,6 +33,7 @@ export default function AuthPage() {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [phone, setPhone] = useState("")
+  const [dateOfBirth, setDateOfBirth] = useState("")
   
   const [activeTab, setActiveTab] = useState("login")
   const router = useRouter()
@@ -89,6 +90,7 @@ export default function AuthPage() {
         first_name: firstName,
         last_name: lastName,
         phone: phone || undefined,
+        date_of_birth: dateOfBirth || undefined,
       })
       
       toast.success('Đăng ký thành công! Vui lòng đăng nhập.')
@@ -100,6 +102,7 @@ export default function AuthPage() {
       setFirstName("")
       setLastName("")
       setPhone("")
+      setDateOfBirth("")
       
       // Chuyển về tab đăng nhập
       setActiveTab("login")
@@ -297,6 +300,18 @@ export default function AuthPage() {
                         className="bg-dark-light border-dark-light text-white h-12 focus:border-gold"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="dateOfBirth" className="text-text-secondary text-sm font-medium">
+                        Ngày sinh (tùy chọn)
+                      </Label>
+                      <Input
+                        id="dateOfBirth"
+                        type="date"
+                        className="bg-dark-light border-dark-light text-white h-12 focus:border-gold"
+                        value={dateOfBirth}
+                        onChange={(e) => setDateOfBirth(e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">

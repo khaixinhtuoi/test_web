@@ -2,25 +2,28 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Search, User, Heart, ShoppingCart, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetTrigger 
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger
 } from "@/components/ui/sheet"
 import { authAPI } from "@/lib/api"
 import { toast } from "sonner"
 import { CartIcon } from "@/components/cart-icon"
 
 export function Header() {
+  const router = useRouter()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userData, setUserData] = useState<any>(null)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,20 +62,20 @@ export function Header() {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true)
-      
+
       // Gọi API đăng xuất
       await authAPI.logout()
-      
+
       // Xóa thông tin đăng nhập khỏi localStorage
       localStorage.removeItem('accessToken')
       localStorage.removeItem('userData')
-      
+
       // Cập nhật trạng thái
       setIsLoggedIn(false)
       setUserData(null)
-      
+
       toast.success('Đăng xuất thành công')
-      
+
       // Chuyển hướng đến trang chủ nếu cần
       window.location.href = '/'
     } catch (error) {
@@ -80,6 +83,26 @@ export function Header() {
       toast.error('Có lỗi xảy ra khi đăng xuất')
     } finally {
       setIsLoggingOut(false)
+    }
+  }
+
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault()
+    }
+
+    if (searchQuery.trim()) {
+      // Chuyển hướng đến trang products với query parameter
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`)
+    } else {
+      // Nếu không có từ khóa, chuyển đến trang products
+      router.push('/products')
+    }
+  }
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
     }
   }
 
@@ -209,19 +232,23 @@ export function Header() {
 
             {/* Search */}
             <div className="flex-1 max-w-xl mx-8 hidden md:block">
-              <div className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <Input
                   type="search"
                   placeholder="Tìm kiếm sản phẩm..."
                   className="w-full bg-dark-medium border-dark-light text-white placeholder:text-text-secondary rounded-full h-10 pl-4 pr-10 focus:border-gold focus:ring-gold"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={handleSearchKeyPress}
                 />
-                <Button 
-                  size="icon" 
+                <Button
+                  type="submit"
+                  size="icon"
                   className="absolute right-1.5 top-1/2 transform -translate-y-1/2 bg-transparent hover:bg-transparent text-text-secondary hover:text-gold h-7 w-7"
                 >
                   <Search className="h-4 w-4" />
                 </Button>
-              </div>
+              </form>
             </div>
 
             {/* User actions */}

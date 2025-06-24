@@ -38,7 +38,8 @@ import {
   Calendar,
   Receipt,
   Save,
-  X
+  X,
+  DollarSign
 } from "lucide-react"
 import {
   Dialog,
@@ -162,7 +163,12 @@ export default function OrdersPage() {
   const totalOrders = ordersData?.pagination?.total || 0
   const pendingOrders = orders.filter(order => order.order_status === 'pending').length
   const deliveredOrders = orders.filter(order => order.order_status === 'delivered').length
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0)
+  const paidOrders = orders.filter(order => order.payment_status === 'paid').length
+  const pendingPaymentOrders = orders.filter(order => order.payment_status === 'pending').length
+  // Chỉ tính doanh thu từ đơn hàng đã thanh toán
+  const totalRevenue = orders
+    .filter(order => order.payment_status === 'paid')
+    .reduce((sum, order) => sum + order.total_amount, 0)
 
   const handleRefresh = () => {
     refetch()
@@ -229,7 +235,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <Card className="bg-gray-800 border-gray-700">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -256,18 +262,37 @@ export default function OrdersPage() {
 
         <Card className="bg-gray-800 border-gray-700">
           <CardContent className="p-4">
-            <div>
-              <p className="text-gray-400 text-sm">Đã giao hàng</p>
-              <p className="text-2xl font-bold text-green-500">{deliveredOrders}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Đã giao hàng</p>
+                <p className="text-2xl font-bold text-green-500">{deliveredOrders}</p>
+              </div>
+              <CheckCircle className="h-8 w-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-800 border-gray-700">
           <CardContent className="p-4">
-            <div>
-              <p className="text-gray-400 text-sm">Doanh thu</p>
-              <p className="text-2xl font-bold text-orange-500">{formatPrice(totalRevenue)}</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Đã thanh toán</p>
+                <p className="text-2xl font-bold text-green-500">{paidOrders}</p>
+              </div>
+              <CreditCard className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gray-800 border-gray-700">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-400 text-sm">Doanh thu</p>
+                <p className="text-2xl font-bold text-orange-500">{formatPrice(totalRevenue)}</p>
+                <p className="text-xs text-gray-500 mt-1">Từ {paidOrders} đơn đã thanh toán</p>
+              </div>
+              <DollarSign className="h-8 w-8 text-orange-500" />
             </div>
           </CardContent>
         </Card>

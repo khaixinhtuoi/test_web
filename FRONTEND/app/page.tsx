@@ -3,21 +3,55 @@
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Star, Truck, Shield, RotateCcw, CreditCard, ChevronRight, ChevronLeft, Loader2 } from "lucide-react"
+import { Truck, Shield, RotateCcw, CreditCard, ChevronRight, ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePublicProducts, usePublicCategories } from "@/hooks/use-public-api"
 import { ProductCard } from "@/components/product-card"
+import { HeroCarousel } from "@/components/hero-carousel"
 
 export default function HomePage() {
   // Lấy dữ liệu từ API
-  const { data: productsData, isLoading: productsLoading } = usePublicProducts({ limit: 10 })
+  const { data: productsData, isLoading: productsLoading } = usePublicProducts({ limit: 12 })
   const { data: categoriesData, isLoading: categoriesLoading } = usePublicCategories()
 
   const products = productsData?.products || []
   const categories = categoriesData?.categories || []
+
+  // Carousel slides data
+  const heroSlides = [
+    {
+      id: 1,
+      title: "iPhone 15 Pro Max",
+      subtitle: "Titanium. So strong. So light. So Pro.",
+      description: "Khám phá iPhone 15 Pro Max với chip A17 Pro, camera 48MP và thiết kế titanium cao cấp",
+      image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&h=600&fit=crop&crop=center",
+      bgColor: "from-blue-600 to-purple-600",
+      buttonText: "Mua ngay",
+      buttonLink: "/products"
+    },
+    {
+      id: 2,
+      title: "MacBook Pro M3",
+      subtitle: "Supercharged by M3 chip",
+      description: "Hiệu năng vượt trội với chip M3, màn hình Liquid Retina XDR và thời lượng pin lên đến 22 giờ",
+      image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=600&h=600&fit=crop&crop=center",
+      bgColor: "from-gray-600 to-gray-800",
+      buttonText: "Khám phá",
+      buttonLink: "/products"
+    },
+    {
+      id: 3,
+      title: "AirPods Pro (2nd gen)",
+      subtitle: "Adaptive Audio. Now playing.",
+      description: "Trải nghiệm âm thanh đỉnh cao với chip H2, chống ồn chủ động và Adaptive Audio thông minh",
+      image: "https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=600&h=600&fit=crop&crop=center",
+      bgColor: "from-indigo-600 to-purple-600",
+      buttonText: "Nghe thử",
+      buttonLink: "/products"
+    }
+  ]
   // Mapping icons cho categories
   const categoryIcons: Record<string, string> = {
     "Điện thoại": "📱",
@@ -32,13 +66,13 @@ export default function HomePage() {
     {
       title: "Ưu đãi đặc biệt",
       description: "Giảm đến 30% cho iPhone",
-      image: "/placeholder.svg?height=200&width=400",
+      image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=300&fit=crop&crop=center",
       color: "from-purple-600 to-blue-500",
     },
     {
       title: "Phụ kiện chất lượng",
       description: "Mua 2 tặng 1 tất cả phụ kiện",
-      image: "/placeholder.svg?height=200&width=400",
+      image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=300&fit=crop&crop=center",
       color: "from-amber-500 to-pink-500",
     },
   ]
@@ -47,46 +81,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-black">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative py-16 md:py-24 bg-dark-gray overflow-hidden">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="relative z-10">
-              <span className="inline-block text-gold text-sm font-medium tracking-wider uppercase mb-4">TechStore - Công nghệ chính hãng</span>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white leading-tight">
-                Khám phá đẳng cấp mới của <span className="bg-gradient-to-r from-white to-gold bg-clip-text text-transparent">công nghệ hiện đại</span>
-              </h1>
-              <p className="text-lg text-text-secondary mb-8 max-w-xl">
-                Thiết bị điện tử chính hãng với giá tốt nhất, bảo hành chính hãng và dịch vụ chăm sóc khách hàng tận tâm 24/7
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Button size="lg" className="bg-gold hover:bg-gold-hover text-black font-medium rounded-full">
-                  Mua ngay
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-gold text-gold hover:bg-gold hover:text-black font-medium rounded-full"
-                >
-                  Khám phá thêm
-                </Button>
-              </div>
-            </div>
-            <div className="relative hidden lg:block">
-              <div className="absolute w-full h-full bg-gradient-to-r from-gold/20 to-transparent rounded-full blur-3xl opacity-30"></div>
-              <Image
-                src="/placeholder.svg?height=500&width=500"
-                alt="Hero Product"
-                width={600}
-                height={600}
-                className="relative z-10 object-contain"
-              />
-              <div className="absolute -top-10 -right-10 w-40 h-40 bg-gold/30 rounded-full blur-3xl"></div>
-            </div>
-          </div>
-        </div>
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black to-transparent opacity-60"></div>
-      </section>
+      {/* Hero Carousel Section */}
+      <HeroCarousel slides={heroSlides} autoSlideInterval={10000} />
 
       {/* Categories */}
       <section className="py-16 bg-black">
@@ -134,24 +130,24 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-6">
             {promotions.map((promo, index) => (
-              <div 
+              <div
                 key={index}
                 className={`rounded-2xl overflow-hidden relative h-48 bg-gradient-to-r ${promo.color} group cursor-pointer`}
               >
-                <div className="absolute inset-0 bg-black/40 flex flex-col justify-center p-8">
-                  <h3 className="text-white text-2xl font-bold mb-2">{promo.title}</h3>
-                  <p className="text-white/80 mb-4">{promo.description}</p>
-                  <Button className="w-fit bg-white hover:bg-white/90 text-black font-medium rounded-full">
+                <div className="absolute inset-0 bg-black/40 flex flex-col justify-center p-6 md:p-8 z-10">
+                  <h3 className="text-white text-xl md:text-2xl font-bold mb-2">{promo.title}</h3>
+                  <p className="text-white/80 mb-4 text-sm md:text-base">{promo.description}</p>
+                  <Button className="w-fit bg-white hover:bg-white/90 text-black font-medium rounded-full text-sm px-4 py-2">
                     Xem ngay
                   </Button>
                 </div>
-                <div className="absolute right-0 bottom-0 w-48 h-48">
-                  <Image 
-                    src={promo.image} 
+                <div className="absolute right-0 top-0 w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 flex items-center justify-center overflow-hidden">
+                  <Image
+                    src={promo.image}
                     alt={promo.title}
                     width={200}
                     height={200}
-                    className="object-contain transform group-hover:scale-110 transition-transform duration-500"
+                    className="object-cover w-full h-full transform group-hover:scale-110 transition-transform duration-500"
                   />
                 </div>
               </div>
@@ -165,19 +161,15 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-white">Sản phẩm nổi bật</h2>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="icon" className="border-dark-light text-text-secondary hover:text-gold hover:border-gold rounded-full h-10 w-10">
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="icon" className="border-dark-light text-text-secondary hover:text-gold hover:border-gold rounded-full h-10 w-10">
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </div>
+            <Link href="/products" className="text-gold hover:text-gold-hover font-medium text-sm flex items-center">
+              Xem tất cả
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Link>
           </div>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {productsLoading ? (
               // Loading skeleton cho products
-              Array.from({ length: 5 }).map((_, index) => (
+              Array.from({ length: 12 }).map((_, index) => (
                 <Card key={index} className="bg-dark-medium border-dark-light rounded-xl">
                   <CardContent className="p-4">
                     <div className="relative mb-4 bg-dark-gray rounded-lg p-4">
@@ -193,14 +185,14 @@ export default function HomePage() {
                 </Card>
               ))
             ) : (
-              products.slice(0, 5).map((product) => (
+              products.slice(0, 12).map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))
             )}
           </div>
           <div className="mt-10 text-center">
             <Link href="/products">
-              <Button className="bg-gold hover:bg-gold-hover text-black font-medium rounded-full">
+              <Button className="bg-gold hover:bg-gold-hover text-black font-medium rounded-full px-8 py-3">
                 Xem tất cả sản phẩm
               </Button>
             </Link>
@@ -323,7 +315,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-dark-light flex flex-col md:flex-row justify-between items-center">
-            <p className="text-text-secondary text-sm mb-4 md:mb-0">© 2023 TechStore. Tất cả quyền được bảo lưu.</p>
+            <p className="text-text-secondary text-sm mb-4 md:mb-0">© 2025 TechStore. VGK KH065</p>
             <div className="flex items-center space-x-6">
               <Link href="#" className="text-text-secondary hover:text-gold transition-colors">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>

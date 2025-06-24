@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
+import { useSearchParams } from "next/navigation"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -11,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { Star, Filter, Grid, List, Search } from "lucide-react"
+import { Star, Filter, Grid, List, Search, ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePublicProducts, usePublicCategories } from "@/hooks/use-public-api"
@@ -33,24 +34,36 @@ const ProductCard = dynamic(() => import("@/components/product-card").then(mod =
 })
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams()
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [priceRange, setPriceRange] = useState([0, 50000000])
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
   const [sortBy, setSortBy] = useState("popular")
   const [searchTerm, setSearchTerm] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 15
 
-  // Lấy dữ liệu từ API - KHÔNG lọc theo category để hiển thị tất cả sản phẩm
+  // Xử lý query parameter từ URL khi component mount
+  useEffect(() => {
+    const searchQuery = searchParams.get('search')
+    if (searchQuery) {
+      setSearchTerm(searchQuery)
+      setCurrentPage(1) // Reset về trang đầu khi có search query mới
+    }
+  }, [searchParams])
+
+  // Lấy dữ liệu từ API với phân trang
   const { data: categoriesData } = usePublicCategories()
   const { data: productsData, isLoading: productsLoading } = usePublicProducts({
-    // Không truyền category để lấy tất cả sản phẩm
-    category: selectedCategory && selectedCategory !== "all" ? selectedCategory : undefined, // Chỉ lọc khi user chọn category cụ thể
+    category: selectedCategory && selectedCategory !== "all" ? selectedCategory : undefined,
     min_price: priceRange[0],
     max_price: priceRange[1],
     brands: selectedBrands.length > 0 ? selectedBrands : undefined,
     sort: sortBy as 'price_asc' | 'price_desc' | 'newest',
     search: searchTerm || undefined,
-    limit: 20,
+    page: currentPage,
+    limit: itemsPerPage,
   })
 
   // Lấy tất cả products để có danh sách brands
@@ -61,6 +74,7 @@ export default function ProductsPage() {
   const products = productsData?.products || []
   const categories = categoriesData?.categories || []
   const allProducts = allProductsData?.products || []
+  const pagination = productsData?.pagination
 
   // Lấy danh sách brands từ tất cả products
   const brands = Array.from(new Set(allProducts.map(p => p.brand).filter(Boolean)))
@@ -70,7 +84,9 @@ export default function ProductsPage() {
   }
 
   const toggleBrand = (brand: string) => {
-    setSelectedBrands((prev) => (prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]))
+    handleFilterChange(() => {
+      setSelectedBrands((prev) => (prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]))
+    })
   }
 
   const clearFilters = () => {
@@ -79,6 +95,62 @@ export default function ProductsPage() {
     setSelectedCategory("all")
     setSearchTerm("")
     setSortBy("popular")
+    setCurrentPage(1) // Reset về trang đầu khi clear filters
+  }
+
+  // Reset về trang đầu khi thay đổi filters
+  const handleFilterChange = (callback: () => void) => {
+    callback()
+    setCurrentPage(1)
+  }
+
+  // Pagination handlers
+  const totalPages = pagination?.pages || 1
+  const canGoPrevious = currentPage > 1
+  const canGoNext = currentPage < totalPages
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page)
+      // Scroll to top when changing page
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const goToPrevious = () => goToPage(currentPage - 1)
+  const goToNext = () => goToPage(currentPage + 1)
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pages = []
+    const maxVisiblePages = 5
+
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i)
+      }
+    } else {
+      // Show smart pagination
+      if (currentPage <= 3) {
+        // Show first 5 pages
+        for (let i = 1; i <= 5; i++) {
+          pages.push(i)
+        }
+      } else if (currentPage >= totalPages - 2) {
+        // Show last 5 pages
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pages.push(i)
+        }
+      } else {
+        // Show current page and 2 pages on each side
+        for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+          pages.push(i)
+        }
+      }
+    }
+
+    return pages
   }
 
   return (
@@ -114,7 +186,7 @@ export default function ProductsPage() {
                       placeholder="Tìm sản phẩm..."
                       className="bg-gray-700 border-gray-600 text-white pl-10"
                       value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
+                      onChange={(e) => handleFilterChange(() => setSearchTerm(e.target.value))}
                     />
                   </div>
                 </div>
@@ -122,7 +194,7 @@ export default function ProductsPage() {
                 {/* Categories */}
                 <div className="mb-6">
                   <h3 className="font-medium text-white mb-4">Danh mục</h3>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <Select value={selectedCategory} onValueChange={(value) => handleFilterChange(() => setSelectedCategory(value))}>
                     <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                       <SelectValue placeholder="Tất cả danh mục" />
                     </SelectTrigger>
@@ -142,7 +214,7 @@ export default function ProductsPage() {
                   <h3 className="font-medium text-white mb-4">Khoảng giá</h3>
                   <Slider
                     value={priceRange}
-                    onValueChange={setPriceRange}
+                    onValueChange={(value) => handleFilterChange(() => setPriceRange(value))}
                     max={50000000}
                     step={1000000}
                     className="mb-4"
@@ -194,12 +266,21 @@ export default function ProductsPage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
               <div>
                 <h1 className="text-2xl font-bold text-white mb-2">Tất cả sản phẩm</h1>
-                <p className="text-gray-400">{products.length} sản phẩm</p>
+                <p className="text-gray-400">
+                  {pagination ? (
+                    <>
+                      Hiển thị {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, pagination.total)}
+                      trong tổng số {pagination.total} sản phẩm
+                    </>
+                  ) : (
+                    `${products.length} sản phẩm`
+                  )}
+                </p>
               </div>
 
               <div className="flex items-center space-x-4 mt-4 sm:mt-0">
                 {/* Sort */}
-                <Select value={sortBy} onValueChange={setSortBy}>
+                <Select value={sortBy} onValueChange={(value) => handleFilterChange(() => setSortBy(value))}>
                   <SelectTrigger className="w-48 bg-gray-800 border-gray-700 text-white">
                     <SelectValue placeholder="Sắp xếp theo" />
                   </SelectTrigger>
@@ -314,23 +395,102 @@ export default function ProductsPage() {
             )}
 
             {/* Pagination */}
-            {products.length > 0 && (
-              <div className="flex justify-center mt-12">
-                <div className="flex space-x-2">
-                  <Button variant="outline" className="border-gray-600 text-gray-300">
+            {pagination && totalPages > 1 && (
+              <div className="flex flex-col items-center mt-12 space-y-4">
+                {/* Pagination Info */}
+                <div className="text-sm text-gray-400">
+                  Trang {currentPage} / {totalPages}
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="flex items-center space-x-2">
+                  {/* Previous Button */}
+                  <Button
+                    variant="outline"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700 disabled:opacity-50"
+                    onClick={goToPrevious}
+                    disabled={!canGoPrevious}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
                     Trước
                   </Button>
-                  <Button className="bg-yellow-600 text-black">1</Button>
-                  <Button variant="outline" className="border-gray-600 text-gray-300">
-                    2
-                  </Button>
-                  <Button variant="outline" className="border-gray-600 text-gray-300">
-                    3
-                  </Button>
-                  <Button variant="outline" className="border-gray-600 text-gray-300">
+
+                  {/* First page if not visible */}
+                  {currentPage > 3 && totalPages > 5 && (
+                    <>
+                      <Button
+                        variant="outline"
+                        className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                        onClick={() => goToPage(1)}
+                      >
+                        1
+                      </Button>
+                      {currentPage > 4 && <span className="text-gray-500">...</span>}
+                    </>
+                  )}
+
+                  {/* Page Numbers */}
+                  {getPageNumbers().map((pageNum) => (
+                    <Button
+                      key={pageNum}
+                      variant={pageNum === currentPage ? "default" : "outline"}
+                      className={
+                        pageNum === currentPage
+                          ? "bg-yellow-600 text-black hover:bg-yellow-700"
+                          : "border-gray-600 text-gray-300 hover:bg-gray-700"
+                      }
+                      onClick={() => goToPage(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  ))}
+
+                  {/* Last page if not visible */}
+                  {currentPage < totalPages - 2 && totalPages > 5 && (
+                    <>
+                      {currentPage < totalPages - 3 && <span className="text-gray-500">...</span>}
+                      <Button
+                        variant="outline"
+                        className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                        onClick={() => goToPage(totalPages)}
+                      >
+                        {totalPages}
+                      </Button>
+                    </>
+                  )}
+
+                  {/* Next Button */}
+                  <Button
+                    variant="outline"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700 disabled:opacity-50"
+                    onClick={goToNext}
+                    disabled={!canGoNext}
+                  >
                     Sau
+                    <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </div>
+
+                {/* Quick Jump */}
+                {totalPages > 10 && (
+                  <div className="flex items-center space-x-2 text-sm">
+                    <span className="text-gray-400">Đi đến trang:</span>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={totalPages}
+                      className="w-20 h-8 bg-gray-700 border-gray-600 text-white text-center"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          const page = parseInt((e.target as HTMLInputElement).value)
+                          if (page >= 1 && page <= totalPages) {
+                            goToPage(page)
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>

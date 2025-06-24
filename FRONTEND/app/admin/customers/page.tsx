@@ -61,6 +61,7 @@ interface User {
   last_name: string;
   phone?: string;
   address?: string;
+  date_of_birth?: string;
   role: 'admin' | 'customer';
   is_active: boolean;
   created_at: string;
@@ -82,6 +83,7 @@ export default function CustomersPage() {
     last_name: "",
     phone: "",
     address: "",
+    date_of_birth: "",
   })
   
   // Tải danh sách khách hàng
@@ -149,6 +151,7 @@ export default function CustomersPage() {
         last_name: formData.last_name,
         phone: formData.phone,
         address: formData.address,
+        date_of_birth: formData.date_of_birth || undefined,
         role: 'customer' // Đảm bảo vẫn là customer
       })
       
@@ -200,6 +203,7 @@ export default function CustomersPage() {
       last_name: customer.last_name,
       phone: customer.phone || "",
       address: customer.address || "",
+      date_of_birth: customer.date_of_birth ? customer.date_of_birth.split('T')[0] : "",
     })
     setIsEditDialogOpen(true)
   }
@@ -219,6 +223,7 @@ export default function CustomersPage() {
       last_name: "",
       phone: "",
       address: "",
+      date_of_birth: "",
     })
   }
   
@@ -444,6 +449,17 @@ export default function CustomersPage() {
                 onChange={handleInputChange}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="date_of_birth" className="text-gray-300">Ngày sinh</Label>
+              <Input
+                id="date_of_birth"
+                name="date_of_birth"
+                type="date"
+                className="bg-gray-700 border-gray-600 text-white"
+                value={formData.date_of_birth}
+                onChange={handleInputChange}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button 
@@ -528,6 +544,17 @@ export default function CustomersPage() {
                 placeholder="Nhập địa chỉ"
                 className="bg-gray-700 border-gray-600 text-white"
                 value={formData.address}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="date_of_birth" className="text-gray-300">Ngày sinh</Label>
+              <Input
+                id="date_of_birth"
+                name="date_of_birth"
+                type="date"
+                className="bg-gray-700 border-gray-600 text-white"
+                value={formData.date_of_birth}
                 onChange={handleInputChange}
               />
             </div>

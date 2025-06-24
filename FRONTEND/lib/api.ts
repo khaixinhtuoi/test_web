@@ -294,6 +294,7 @@ export const userAPI = {
     last_name: string;
     phone?: string;
     address?: string;
+    date_of_birth?: string;
   }) => {
     const response = await api.post('/users/register', userData);
     return response.data;
@@ -309,6 +310,7 @@ export const userAPI = {
     last_name?: string;
     phone?: string;
     address?: string;
+    date_of_birth?: string;
   }) => {
     const response = await api.put('/users/profile', userData);
     return response.data;
@@ -343,6 +345,7 @@ export const adminAPI = {
     last_name: string;
     phone?: string;
     address?: string;
+    date_of_birth?: string;
     role: 'customer' | 'admin';
   }) => {
     const response = await api.post('/users/register', userData);
@@ -354,6 +357,7 @@ export const adminAPI = {
     last_name?: string;
     phone?: string;
     address?: string;
+    date_of_birth?: string;
     role?: 'customer' | 'admin';
   }) => {
     const response = await api.put(`/users/${userId}`, userData);

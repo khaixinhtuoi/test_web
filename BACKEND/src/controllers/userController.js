@@ -114,12 +114,12 @@ exports.getCurrentUser = async (req, res) => {
  */
 exports.updateUser = async (req, res) => {
   try {
-    const { first_name, last_name, phone, address } = req.body;
-    
+    const { first_name, last_name, phone, address, date_of_birth } = req.body;
+
     // Tìm và cập nhật người dùng
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { first_name, last_name, phone, address },
+      { first_name, last_name, phone, address, date_of_birth },
       { new: true, runValidators: true }
     ).select('-password');
     
@@ -266,12 +266,12 @@ exports.createUser = async (req, res) => {
 exports.updateUserById = async (req, res) => {
   try {
     const { userId } = req.params;
-    const { first_name, last_name, phone, address, role } = req.body;
-    
+    const { first_name, last_name, phone, address, date_of_birth, role } = req.body;
+
     // Tìm và cập nhật người dùng
     const user = await User.findByIdAndUpdate(
       userId,
-      { first_name, last_name, phone, address, role },
+      { first_name, last_name, phone, address, date_of_birth, role },
       { new: true, runValidators: true }
     ).select('-password');
     
