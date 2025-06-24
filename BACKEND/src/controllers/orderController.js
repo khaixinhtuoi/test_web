@@ -191,7 +191,7 @@ exports.getOrderDetails = async (req, res) => {
     
     // Lấy chi tiết đơn hàng
     const orderItems = await OrderItem.find({ order_id: orderId })
-      .populate('product_id', 'image_url');
+      .populate('product_id', 'product_name brand image_url price description');
     
     res.status(200).json({
       order,
@@ -314,7 +314,7 @@ exports.getAdminOrderDetails = async (req, res) => {
 
     // Lấy chi tiết đơn hàng
     const orderItems = await OrderItem.find({ order_id: orderId })
-      .populate('product_id', 'image_url');
+      .populate('product_id', 'product_name brand image_url price description');
 
     res.status(200).json({
       order,

@@ -1,0 +1,63 @@
+@startuml
+!theme plain
+title Quy trình Xem Sản phẩm và Thêm vào Giỏ hàng
+
+actor User as U
+participant "Browser" as B
+participant "Server" as S
+participant "Database" as DB
+
+== 1. Xem Danh sách Sản phẩm ==
+
+U -> B: Truy cập mục sản phẩm
+B -> S: Yêu cầu danh sách sản phẩm
+S -> DB: Truy vấn danh sách sản phẩm
+DB --> S: Danh sách sản phẩm
+S --> B: Danh sách sản phẩm
+B --> U: Hiển thị danh sách sản phẩm
+
+== 2. Xem Chi tiết Sản phẩm ==
+
+U -> B: Chọn sản phẩm
+B -> S: Yêu cầu thông tin chi tiết sản phẩm
+S -> DB: Truy vấn thông tin sản phẩm
+DB --> S: Chi tiết sản phẩm
+S --> B: Thôn tin chi tiết sản phẩm
+B --> U: Hiển thị chi tiết sản phẩm
+
+== 3. Thêm vào Giỏ hàng ==
+
+U -> B: Nhấn "Thêm vào giỏ"
+B -> B: Kiểm tra token
+
+alt Chưa đăng nhập
+    B --> U: Thông báo cần đăng nhập
+    B -> U: Chuyển đến trang đăng nhập
+else Đã đăng nhập
+    B -> S: Yêu cầu thêm sản phẩm vào giỏ hàng
+    S -> S: Kiểm tra JWT token
+    
+    alt Token không hợp lệ
+        S --> B: Trả về thông báo lỗi
+        B --> U: Thông báo cần đăng nhập
+    else Token hợp lệ
+        S -> DB: Thông tin chi tiết sản phẩm theo ID
+        DB --> S: Thông tin sản phẩm
+        S -> S: Kiểm tra stock_quantity
+        
+        alt Hết hàng
+            S --> B: Sản phẩm hết hàng
+            B --> U: Thông báo hết hàng
+        else Còn hàng
+            S -> DB: Cập nhập lại dữ liệu
+            
+            
+            
+            DB --> S: Update thành công
+            S --> B: Thông báo update thành công
+            B --> U: Thông báo thành công
+        end
+    end
+end
+
+@enduml

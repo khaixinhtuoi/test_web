@@ -1,0 +1,93 @@
+@startuml search-product-sequence-diagram
+
+title Quy trình Tìm kiếm và Lọc Sản phẩm
+
+actor User as U
+participant "Browser" as B
+participant "Header Component\n(React)" as H
+participant "Products Page\n(Next.js)" as P
+participant "usePublicProducts\n(React Query)" as Q
+participant "publicAPI\n(Axios)" as API
+participant "Backend Server\n(Express.js)" as BE
+participant "productController\n(Node.js)" as PC
+participant "Database\n(MongoDB)" as DB
+
+== 1. Nhập từ khóa tìm kiếm ==
+
+U -> B: Nhập sản phẩm cần tìm trên thanh tìm kiếm
+B -> H: onChange event với searchQuery
+H -> H: setSearchQuery(value)
+
+== 2. Thực hiện tìm kiếm ==
+
+U -> B: Nhấn Enter hoặc click nút Search
+B -> H: onSubmit/handleSearch()
+H -> H: Kiểm tra searchQuery.trim()
+H -> B: router.push(`/products?search=${searchQuery}`)
+B -> P: Navigate to /products page với search params
+
+== 3. Xử lý tham số tìm kiếm ==
+
+P -> P: useSearchParams() lấy search query
+P -> P: useEffect() - setSearchTerm(searchQuery)
+P -> P: setCurrentPage(1) - Reset về trang đầu
+
+== 4. Gọi API tìm kiếm ==
+
+P -> Q: usePublicProducts() với filters
+note right: Filters bao gồm:\n- search: searchTerm\n- category: selectedCategory\n- min_price, max_price\n- brands: selectedBrands\n- sort: sortBy\n- page: currentPage\n- limit: itemsPerPage
+
+Q -> API: publicAPI.getProducts(params)
+API -> BE: GET /api/products với query parameters
+note right: Query params:\n- search: từ khóa tìm kiếm\n- category: danh mục\n- min_price, max_price: khoảng giá\n- brands: thương hiệu\n- sort: sắp xếp\n- page, limit: phân trang
+
+== 5. Xử lý tìm kiếm trong Backend ==
+
+BE -> PC: productController.getAllProducts(req, res)
+PC -> PC: Xây dựng filter object
+note right: Filter conditions:\n- is_active: true\n- category_id: req.query.category\n- price: {$gte: min_price, $lte: max_price}\n- product_name: {$regex: search, $options: 'i'}\n- brand: {$in: brands}
+
+PC -> PC: Xây dựng sort object
+note right: Sort options:\n- price_asc: {price: 1}\n- price_desc: {price: -1}\n- newest: {created_at: -1}
+
+== 6. Truy vấn Database ==
+
+PC -> DB: Product.countDocuments(filter)
+DB -> PC: Tổng số sản phẩm thỏa mãn điều kiện
+
+PC -> DB: Product.find(filter)\n.populate('category_id', 'category_name')\n.sort(sort)\n.skip(skip)\n.limit(limit)
+DB -> PC: Danh sách sản phẩm cần tìm với thông tin category
+
+== 7. Trả về kết quả ==
+
+PC -> BE: Response với products và pagination
+BE -> API: 200 OK\n{products: [...], pagination: {...}}
+API -> Q: Promise resolve với data
+Q -> P: Return data từ React Query cache
+
+== 8. Hiển thị kết quả ==
+
+P -> P: Nhận products và pagination từ hook
+P -> P: Render ProductCard components
+P -> B: Update UI với danh sách sản phẩm
+B -> U: Hiển thị danh sách sản phẩm tìm được
+
+== 9. Xử lý trường hợp không tìm thấy ==
+
+alt Không có sản phẩm nào
+    P -> B: Hiển thị "Không tìm thấy sản phẩm nào"
+    B -> U: Thông báo không có kết quả
+else Có sản phẩm
+    P -> B: Hiển thị grid/list sản phẩm với pagination
+    B -> U: Danh sách sản phẩm với điều khiển phân trang
+end
+
+== 10. Lọc và sắp xếp bổ sung ==
+
+U -> B: Thay đổi bộ lọc (category, price, brand, sort)
+B -> P: Update filter states
+P -> P: handleFilterChange() - setCurrentPage(1)
+P -> Q: usePublicProducts() với filters mới
+note right: Quá trình lặp lại từ bước 4-8\nvới điều kiện lọc mới
+
+@enduml

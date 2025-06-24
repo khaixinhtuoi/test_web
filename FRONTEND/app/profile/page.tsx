@@ -40,6 +40,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog"
 import { userAPI, authAPI, orderAPI, Order } from "@/lib/api"
+import { useOrderDetails } from "@/hooks/use-orders"
 import { toast } from "sonner"
 
 interface UserData {
@@ -87,6 +88,11 @@ export default function ProfilePage() {
     enabled: !!localStorage.getItem('accessToken'),
     retry: 1
   })
+
+  // Fetch order details when modal is opened
+  const { data: orderDetailsData, isLoading: isLoadingOrderDetails } = useOrderDetails(
+    selectedOrder?._id || ''
+  )
 
   // Cancel order mutation
   const cancelOrderMutation = useMutation({
@@ -909,20 +915,54 @@ export default function ProfilePage() {
                   <Package className="h-4 w-4 mr-2 text-gold" />
                   Sản phẩm đã đặt
                 </h3>
-                
-                <div className="bg-dark-light p-4 rounded-lg flex items-center space-x-4">
-                  <div className="bg-gold/20 w-20 h-20 rounded-lg flex items-center justify-center">
-                    <ShoppingCart className="h-8 w-8 text-gold" />
+
+                {isLoadingOrderDetails ? (
+                  <div className="bg-dark-light p-4 rounded-lg text-center text-text-secondary">
+                    Đang tải chi tiết sản phẩm...
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-white font-medium">iPhone 16 Pro Max</h4>
-                    <p className="text-text-secondary text-sm">Màu: Titan Tự Nhiên | Dung lượng: 256GB</p>
-                    <div className="flex justify-between mt-2">
-                      <span className="text-gold font-medium">{selectedOrder.total}</span>
-                      <span className="text-text-secondary">Số lượng: 1</span>
-                    </div>
+                ) : orderDetailsData?.orderItems && orderDetailsData.orderItems.length > 0 ? (
+                  <div className="space-y-4">
+                    {orderDetailsData.orderItems.map((item, index) => (
+                      <div key={item._id} className="bg-dark-light p-4 rounded-lg flex items-center space-x-4">
+                        <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+                          {item.product_id?.image_url ? (
+                            <img
+                              src={item.product_id.image_url}
+                              alt={item.product_name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                target.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-full h-full bg-gold/20 flex items-center justify-center ${item.product_id?.image_url ? 'hidden' : ''}`}>
+                            <ShoppingCart className="h-8 w-8 text-gold" />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-white font-medium">{item.product_name}</h4>
+                          {item.product_id?.brand && (
+                            <p className="text-text-secondary text-sm">Thương hiệu: {item.product_id.brand}</p>
+                          )}
+                          <div className="flex justify-between mt-2">
+                            <span className="text-gold font-medium">{formatPrice(item.unit_price)}</span>
+                            <span className="text-text-secondary">Số lượng: {item.quantity}</span>
+                          </div>
+                          <div className="flex justify-between mt-1">
+                            <span className="text-text-secondary text-sm">Thành tiền:</span>
+                            <span className="text-white font-medium">{formatPrice(item.total_price)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-dark-light p-4 rounded-lg text-center text-text-secondary">
+                    Không có thông tin chi tiết sản phẩm
+                  </div>
+                )}
               </div>
 
               <Separator className="my-6 bg-dark-light" />

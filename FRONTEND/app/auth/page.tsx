@@ -304,7 +304,7 @@ export default function AuthPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="dateOfBirth" className="text-text-secondary text-sm font-medium">
-                        Ngày sinh (tùy chọn)
+                        Ngày sinh 
                       </Label>
                       <Input
                         id="dateOfBirth"

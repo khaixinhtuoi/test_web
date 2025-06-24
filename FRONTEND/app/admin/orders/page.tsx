@@ -95,6 +95,14 @@ export default function OrdersPage() {
     retry: 1
   })
 
+  // Fetch order details when modal is opened
+  const { data: orderDetailsData, isLoading: isLoadingDetails } = useQuery({
+    queryKey: ['admin-order-details', selectedOrder?._id],
+    queryFn: () => adminOrderAPI.getOrderDetails(selectedOrder!._id),
+    enabled: !!selectedOrder && orderDetailOpen,
+    retry: 1
+  })
+
   // Update order mutation
   const updateOrderMutation = useMutation({
     mutationFn: ({ orderId, data }: { orderId: string, data: any }) =>
@@ -499,6 +507,52 @@ export default function OrdersPage() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              <Separator className="bg-gray-700" />
+
+              {/* Order Items */}
+              <div>
+                <h3 className="flex items-center text-white font-medium mb-4">
+                  <Package className="h-4 w-4 mr-2 text-orange-500" />
+                  Chi tiết sản phẩm
+                </h3>
+                {isLoadingDetails ? (
+                  <div className="bg-gray-700 p-4 rounded-lg text-center text-gray-400">
+                    Đang tải chi tiết sản phẩm...
+                  </div>
+                ) : orderDetailsData?.orderItems && orderDetailsData.orderItems.length > 0 ? (
+                  <div className="bg-gray-700 rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-600">
+                          <tr>
+                            <th className="text-left p-3 text-gray-300 text-sm font-medium">Sản phẩm</th>
+                            <th className="text-center p-3 text-gray-300 text-sm font-medium">Số lượng</th>
+                            <th className="text-right p-3 text-gray-300 text-sm font-medium">Đơn giá</th>
+                            <th className="text-right p-3 text-gray-300 text-sm font-medium">Thành tiền</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {orderDetailsData.orderItems.map((item, index) => (
+                            <tr key={item._id} className={index % 2 === 0 ? 'bg-gray-700' : 'bg-gray-750'}>
+                              <td className="p-3">
+                                <div className="text-white font-medium">{item.product_name}</div>
+                              </td>
+                              <td className="p-3 text-center text-white">{item.quantity}</td>
+                              <td className="p-3 text-right text-white">{formatPrice(item.unit_price)}</td>
+                              <td className="p-3 text-right text-white font-medium">{formatPrice(item.total_price)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-gray-700 p-4 rounded-lg text-center text-gray-400">
+                    Không có thông tin chi tiết sản phẩm
+                  </div>
+                )}
               </div>
 
               <Separator className="bg-gray-700" />

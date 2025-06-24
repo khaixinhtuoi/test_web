@@ -1,0 +1,34 @@
+@startuml
+!theme plain
+actor User as U
+participant "Browser" as B
+participant "Server" as S
+participant "Database" as DB
+
+== Giai đoạn đăng ký ==
+U -> B: Nhập thông tin đăng ký
+activate B
+B -> B: Kiểm tra mật khẩu xác nhận
+B -> S: Gửi yêu cầu đăng ký
+activate S
+S -> DB: Kiểm tra tồn tại email
+activate DB
+DB --> S: Kết quả kiểm tra email
+deactivate DB
+
+alt Email đã tồn tại
+    S --> B: Báo lỗi email đã tồn tại
+    B --> U: Hiển thị thông báo lỗi
+else Email chưa tồn tại
+    S -> S: Mã hóa mật khẩu
+    S -> DB: Tạo User object mới
+    activate DB
+    DB --> S: Xác nhận lưu thành công
+    deactivate DB
+    S --> B: Đăng ký thành công
+    B -> B: Đưa về trang đăng nhập
+    B --> U: Hiển thị thông báo thành công
+end
+deactivate S
+deactivate B
+@enduml

@@ -1,0 +1,67 @@
+@startuml
+!theme plain
+title Sơ đồ tuần tự - Chức năng Đăng nhập
+
+actor User as U
+participant "Browser\n(React Frontend)" as B
+participant "Express Server\n(Backend API)" as S
+participant "MongoDB\nDatabase" as DB
+
+== Giai đoạn đăng nhập ==
+U -> B: Nhập thông tin đăng nhập\n(email, password)
+activate B
+
+B -> S: POST /api/auth/login\n{email, password}
+activate S
+
+S -> DB: User.findOne({email})
+activate DB
+DB -> S: Kết quả tìm kiếm user
+deactivate DB
+
+alt User không tồn tại
+    S -> B: HTTP 401\n{message: "Email hoặc mật khẩu không đúng"}
+    B -> U: Hiển thị thông báo lỗi\n"Email hoặc mật khẩu không đúng"
+else User tồn tại
+    S -> S: Kiểm tra trạng thái user\n(user.is_active)
+    
+    alt Tài khoản bị khóa
+        S -> B: HTTP 401\n{message: "Tài khoản đã bị khóa"}
+        B -> U: Hiển thị thông báo lỗi\n"Tài khoản đã bị khóa"
+    else Tài khoản hoạt động
+        S -> S: Kiểm tra mật khẩu\nuser.comparePassword(password)\n(bcrypt.compare)
+        
+        alt Mật khẩu sai
+            S -> B: HTTP 401\n{message: "Email hoặc mật khẩu không đúng"}
+            B -> U: Hiển thị thông báo lỗi\n"Email hoặc mật khẩu không đúng"
+        else Mật khẩu đúng
+            S -> S: Tạo Access Token\ngenerateAccessToken(user)\n(JWT với thời hạn 1h)
+            
+            S -> S: Tạo Refresh Token\ngenerateRefreshToken(user, reqInfo)\n(crypto.randomBytes + device info)
+            
+            S -> DB: RefreshToken.create()\nLưu refresh token với thông tin device
+            activate DB
+            DB -> S: Xác nhận lưu refresh token
+            deactivate DB
+            
+            S -> S: Xóa password khỏi response\ndelete userObject.password
+            
+            S -> S: Thiết lập refresh token cookie\n(httpOnly, secure, 30 ngày)
+            
+            S -> B: HTTP 200\n{message: "Đăng nhập thành công",\naccessToken, refreshToken, user}
+            
+            B -> B: Lưu token vào localStorage\nlocalStorage.setItem('accessToken')\nlocalStorage.setItem('userData')
+            
+            B -> U: Hiển thị thông báo thành công\n"Đăng nhập thành công!"
+            
+            B -> B: Chuyển hướng\nrouter.push('/profile')
+            
+            B -> U: Hiển thị trang Profile
+        end
+    end
+end
+
+deactivate S
+deactivate B
+
+@enduml

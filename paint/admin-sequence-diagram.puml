@@ -1,0 +1,200 @@
+@startuml admin-sequence-diagram
+
+title Quy trình Quản lý Admin - TechStore
+
+actor Admin as A
+participant "Browser" as B
+participant "Admin Layout\n(Next.js)" as AL
+participant "Admin Pages\n(React)" as AP
+participant "Admin Hooks\n(React Query)" as AH
+participant "adminAPI\n(Axios)" as API
+participant "Backend Server\n(Express.js)" as BE
+participant "Controllers\n(Node.js)" as C
+participant "Auth Middleware\n(JWT)" as AM
+participant "Database\n(MongoDB)" as DB
+
+== 1. Quản lý Sản phẩm ==
+
+=== 1.1. Xem danh sách sản phẩm ===
+
+A -> B: Truy cập /admin/products
+B -> AL: Load AdminLayout với AdminSidebar
+AL -> AP: Render ProductsPage component
+AP -> AH: useProducts() hook với filters
+AH -> API: adminAPI.getAllProducts(params)
+API -> BE: GET /api/products với auth header
+BE -> AM: Verify JWT token và admin role
+AM -> C: productController.getAllProducts()
+C -> DB: Product.find(filter).populate('category_id')
+DB -> C: Danh sách sản phẩm với category info
+C -> BE: Response với products và pagination
+BE -> API: 200 OK {products: [...], pagination: {...}}
+API -> AH: Promise resolve với data
+AH -> AP: Return products data
+AP -> B: Render bảng sản phẩm với filters
+B -> A: Hiển thị trang quản lý sản phẩm
+
+=== 1.2. Thêm sản phẩm ===
+
+A -> B: Click "Thêm sản phẩm"
+B -> AP: setIsAddDialogOpen(true)
+AP -> B: Hiển thị ProductForm dialog
+A -> B: Nhập thông tin sản phẩm (tên, giá, mô tả, ảnh, số lượng, danh mục)
+A -> B: Click "Thêm sản phẩm"
+B -> AP: handleCreateProduct(formData)
+AP -> AH: useCreateProduct().mutateAsync(data)
+AH -> API: adminAPI.createProduct(productData)
+API -> BE: POST /api/products với auth header
+BE -> AM: Verify JWT token và admin role
+AM -> C: productController.createProduct()
+C -> DB: new Product(data).save()
+DB -> C: Sản phẩm đã tạo thành công
+C -> BE: Response với product mới
+BE -> API: 201 Created {message: "...", product: {...}}
+API -> AH: Promise resolve
+AH -> AP: Invalidate queries và show toast
+AP -> B: Đóng dialog và refresh danh sách
+B -> A: Hiển thị thông báo "Thêm sản phẩm thành công"
+
+=== 1.3. Sửa sản phẩm ===
+
+A -> B: Click nút "Edit" trên sản phẩm
+B -> AP: handleEditProduct(product)
+AP -> AP: setEditFormData() và setIsEditDialogOpen(true)
+AP -> B: Hiển thị ProductForm với dữ liệu hiện có
+A -> B: Chỉnh sửa thông tin, click "Lưu thay đổi"
+B -> AP: handleUpdateProduct(formData)
+AP -> AH: useUpdateProduct().mutateAsync({productId, productData})
+AH -> API: adminAPI.updateProduct(productId, data)
+API -> BE: PUT /api/products/:productId với auth header
+BE -> AM: Verify JWT token và admin role
+AM -> C: productController.updateProduct()
+C -> DB: Product.findByIdAndUpdate(productId, data)
+DB -> C: Sản phẩm đã cập nhật
+C -> BE: Response với product đã update
+BE -> API: 200 OK {message: "...", product: {...}}
+API -> AH: Promise resolve
+AH -> AP: Invalidate queries và show toast
+AP -> B: Đóng dialog và refresh danh sách
+B -> A: Hiển thị thông báo "Cập nhật sản phẩm thành công"
+
+=== 1.4. Xóa sản phẩm ===
+
+A -> B: Click nút "Delete" trên sản phẩm
+B -> AP: handleDeleteProduct(product)
+AP -> B: Hiển thị dialog xác nhận xóa
+A -> B: Xác nhận xóa
+B -> AP: handleConfirmDelete()
+AP -> AH: useDeleteProduct().mutateAsync(productId)
+AH -> API: adminAPI.deleteProduct(productId)
+API -> BE: DELETE /api/products/:productId với auth header
+BE -> AM: Verify JWT token và admin role
+AM -> C: productController.deleteProduct()
+C -> DB: Product.findByIdAndDelete(productId)
+DB -> C: Xác nhận xóa thành công
+C -> BE: Response success
+BE -> API: 200 OK {message: "Xóa sản phẩm thành công"}
+API -> AH: Promise resolve
+AH -> AP: Invalidate queries và show toast
+AP -> B: Đóng dialog và refresh danh sách
+B -> A: Hiển thị thông báo "Xóa sản phẩm thành công"
+
+== 2. Quản lý Đơn hàng ==
+
+=== 2.1. Xem và cập nhật trạng thái đơn hàng ===
+
+A -> B: Truy cập /admin/orders
+B -> AL: Load AdminLayout
+AL -> AP: Render OrdersPage component
+AP -> AH: useAdminOrders() hook với filters
+AH -> API: adminOrderAPI.getAllOrders(filters)
+API -> BE: GET /api/admin/orders với auth header
+BE -> AM: Verify JWT token và admin role
+AM -> C: orderController.getAllOrders()
+C -> DB: Order.find(filter).populate('user_id')
+DB -> C: Danh sách đơn hàng với user info
+C -> BE: Response với orders và pagination
+BE -> API: 200 OK {orders: [...], pagination: {...}}
+API -> AH: Promise resolve
+AH -> AP: Return orders data
+AP -> B: Render bảng đơn hàng
+B -> A: Hiển thị trang quản lý đơn hàng
+
+A -> B: Click "Chỉnh sửa" trạng thái đơn hàng
+B -> AP: Hiển thị form cập nhật trạng thái
+A -> B: Chọn trạng thái mới, click "Lưu"
+B -> AP: handleUpdateOrderStatus()
+AP -> AH: useUpdateOrderStatus().mutateAsync()
+AH -> API: adminOrderAPI.updateOrderStatus(orderId, data)
+API -> BE: PUT /api/admin/orders/:orderId/status với auth header
+BE -> AM: Verify JWT token và admin role
+AM -> C: orderController.updateOrderStatus()
+C -> DB: Order.findByIdAndUpdate(orderId, {order_status, payment_status})
+DB -> C: Đơn hàng đã cập nhật
+C -> BE: Response với order đã update
+BE -> API: 200 OK {message: "...", order: {...}}
+API -> AH: Promise resolve
+AH -> AP: Invalidate queries và show toast
+AP -> B: Refresh danh sách đơn hàng
+B -> A: Hiển thị thông báo "Cập nhật trạng thái thành công"
+
+== 3. Quản lý Người dùng ==
+
+=== 3.1. Khóa/Mở khóa tài khoản người dùng ===
+
+A -> B: Truy cập /admin/customers hoặc /admin/staff
+B -> AL: Load AdminLayout
+AL -> AP: Render CustomersPage/StaffPage component
+AP -> AH: useQuery() với adminAPI.getAllUsers()
+AH -> API: adminAPI.getAllUsers()
+API -> BE: GET /api/users với auth header
+BE -> AM: Verify JWT token và admin role
+AM -> C: userController.getAllUsers()
+C -> DB: User.find().select('-password')
+DB -> C: Danh sách người dùng (không có password)
+C -> BE: Response với users
+BE -> API: 200 OK {users: [...]}
+API -> AH: Promise resolve
+AH -> AP: Return users data
+AP -> B: Render bảng người dùng
+B -> A: Hiển thị trang quản lý người dùng
+
+A -> B: Click "Khóa/Mở khóa" tài khoản người dùng
+B -> AP: handleUpdateUserStatus()
+AP -> AH: useMutation() với adminAPI.updateUserStatus()
+AH -> API: adminAPI.updateUserStatus(userId, isActive)
+API -> BE: PUT /api/users/:userId/status với auth header
+BE -> AM: Verify JWT token và admin role
+AM -> C: userController.updateUserStatus()
+C -> DB: User.findByIdAndUpdate(userId, {is_active})
+DB -> C: User đã cập nhật trạng thái
+C -> BE: Response với user đã update
+BE -> API: 200 OK {message: "...", user: {...}}
+API -> AH: Promise resolve
+AH -> AP: Invalidate queries và show toast
+AP -> B: Refresh danh sách người dùng
+B -> A: Hiển thị thông báo "Khóa/Mở khóa tài khoản thành công"
+
+== 4. Quản lý Thống kê ==
+
+=== 4.1. Xem báo cáo thống kê ===
+
+A -> B: Truy cập /admin (Dashboard)
+B -> AL: Load AdminLayout
+AL -> AP: Render AdminDashboard component
+AP -> AH: useQuery() với adminOrderAPI.getDashboardStats()
+AH -> API: adminOrderAPI.getDashboardStats()
+API -> BE: GET /api/admin/orders/dashboard/stats với auth header
+BE -> AM: Verify JWT token và admin role
+AM -> C: orderController.getDashboardStats()
+C -> DB: Thực hiện các truy vấn tổng hợp:
+note right: - Order.countDocuments() cho tổng đơn hàng\n- Order.aggregate() cho doanh thu\n- User.countDocuments() cho tổng users\n- Product.countDocuments() cho tổng products\n- Order.aggregate() cho thống kê theo tháng
+DB -> C: Kết quả thống kê tổng hợp
+C -> BE: Response với dashboard stats
+BE -> API: 200 OK {totalStats: {...}, ordersByStatus: [...], monthlyRevenue: [...]}
+API -> AH: Promise resolve
+AH -> AP: Return dashboard data
+AP -> B: Render cards thống kê và biểu đồ
+B -> A: Hiển thị báo cáo, biểu đồ thống kê
+
+@enduml

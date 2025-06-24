@@ -120,7 +120,14 @@ export interface CreateOrderData {
 export interface OrderItem {
   _id: string;
   order_id: string;
-  product_id: string;
+  product_id: {
+    _id: string;
+    product_name: string;
+    brand: string;
+    image_url: string;
+    price: number;
+    description: string;
+  };
   product_name: string;
   unit_price: number;
   quantity: number;
@@ -511,7 +518,7 @@ export const orderAPI = {
   },
 
   // Lấy thông tin chi tiết đơn hàng
-  getOrderDetails: async (orderId: string): Promise<{ order: Order }> => {
+  getOrderDetails: async (orderId: string): Promise<{ order: Order; orderItems: OrderItem[] }> => {
     const response = await api.get(`/orders/my-orders/${orderId}`);
     return response.data;
   },
